@@ -1,0 +1,24 @@
+.layer {
+    cursor: default;
+    font-family: courier, sans-serif;
+    font-size: 23px;
+    border: none;
+    overflow: hidden;
+    outline: none;
+    /* -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none; */
+    resize: none; 
+    position: absolute;
+}
+
+.input {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 0;
+    border: none;
+    z-index: -1;
+    resize: none;
+}

@@ -1,0 +1,5 @@
+# npm libs
+node_modules/
+
+# bundled js
+dist/js/bundle.js
