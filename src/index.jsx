@@ -1,9 +1,9 @@
 import React, { Component } from "react";
+import { TILES_W, TILES_H } from './config';
+
+import Layer from './layer/index.jsx';
 
 import './style.css';
-
-// Detects Firefox 1.0+
-const isFirefox = typeof InstallTrigger !== 'undefined';
 
 // UI
 const TILES = {
@@ -16,20 +16,14 @@ const TILES = {
         BOTTOM_RIGHT: '╛'
     },
     NON_BREAKING_SPACE: '\xa0',
-    USER: '▓'
+    SHADOW: '▓',
+    USER: '█'
 };
 
-const TILES_W = 100;
-const TILES_H = 30;
-
-const calculateValue = (cursor, boxes, texts) => {
-    const v = new Array(TILES_H).fill(0).map((_, i) => {              
-        return new Array(TILES_W).fill(0).map((_,j) => {
-            if (cursor) {
-                if (j === cursor.x && i === cursor.y)
-                    return TILES.USER;
-            }
-
+// General textarea value parser
+const calculateValue = (user, boxes, texts) => 
+    new Array(TILES_H).fill(0).map((_, i) => 
+        new Array(TILES_W).fill(0).map((_,j) => {
             if (boxes) {
                 const tile = boxes.reduce((prev, curr) => {
                     if (prev) return prev;
@@ -72,31 +66,28 @@ const calculateValue = (cursor, boxes, texts) => {
                 }, '');
                 if (tile) return tile;
             }
-
-            // if (i === 0) {
-            //     if (j === 0)
-            //         return TILES.DOUBLE_SINGLE.TOP_LEFT;
-            //     if (j === TILES_W - 1)
-            //         return TILES.DOUBLE_SINGLE.TOP_RIGHT;
-            //     return TILES.DOUBLE_SINGLE.HOR;
-            // }
-            
-            // if (i === TILES_H - 1) {
-            //     if (j === 0)
-            //         return TILES.DOUBLE_SINGLE.BOTTOM_LEFT;
-            //     if (j === TILES_W - 1)
-            //         return TILES.DOUBLE_SINGLE.BOTTOM_RIGHT;
-            //     return TILES.DOUBLE_SINGLE.HOR;
-            // }            
-            
-            // if (j === 0 || j === TILES_W - 1)
-            //     return TILES.DOUBLE_SINGLE.VER;
             
             return TILES.NON_BREAKING_SPACE;
-        });
-    }).join().replace(/,/gi, '');
-    return v;
-}
+        })
+    ).join().replace(/,/gi, '');
+
+const calculateInputValue = (user) =>
+    new Array(TILES_H).fill(0).map((_, i) => 
+        new Array(TILES_W).fill(0).map((_,j) => {
+            if (user) {
+                if (j === user.x && i === user.y)
+                    return TILES.USER;
+            }
+            
+            return TILES.NON_BREAKING_SPACE;
+        })
+    ).join().replace(/,/gi, '');
+
+// Controllers
+const createButton = (begin, text) => ({
+    begin,
+    text: `[ ${text} ]`.replace(/ /gi, TILES.NON_BREAKING_SPACE)
+})
 
 // MOVEMENT
 const DIR = [
@@ -132,7 +123,7 @@ export default class UI extends Component {
     }
 
     handleKeyDown(e) {
-        let dir = { x: 0, y: 0 };
+        const dir = { x: 0, y: 0 };
         if (DIR.includes(e.keyCode)) {
             const i = DIR.indexOf(e.keyCode);
             const mod = (i % 2 ? i - 1 : i) / 2;
@@ -150,71 +141,60 @@ export default class UI extends Component {
                     dir.y += 1;
                     break;
             }
-            this.setState({
-                x: Math.max(0, this.state.x + dir.x),
-                y: Math.max(0, this.state.y + dir.y)
-            });
+            const pos = { x: this.state.x + dir.x, y: this.state.y + dir.y };
+            if (pos.x < 0)
+                pos.x = TILES_W - 1;
+            else if (pos.x === TILES_W)
+                pos.x = 0;
+
+            if (pos.y < 0)
+                pos.y = TILES_H - 1;
+            else if (pos.y === TILES_H)
+                pos.y = 0;
+
+            this.setState(pos);
         }
     }
 
     render () {
         const { x, y } = this.state;
-        const button = {
-            begin: { x: 10, y: 3 },
-            text: `Button${TILES.NON_BREAKING_SPACE}Example`,
-        };
+        const button = createButton({ x: 10, y: 3 }, 'Button Example');
         return (
             <div className="container">
-                <textarea 
-                    className="layer"
-                    cols={isFirefox ? TILES_W : TILES_W-1} 
-                    rows={TILES_H}
-                    value={calculateValue({ x, y }, 
+                <Layer 
+                    value={calculateValue(null, 
                         [
                             {  top: 0, left: 0, right: TILES_W - 1, bottom: TILES_H - 1 },
                             {  top: 5, left: 10, right: 40, bottom: 20 }
                         ])} 
                     style={{ backgroundColor: 'cyan' }}
-                    // disabled
-                    readOnly
                 />
-                <textarea 
-                    className="layer"
-                    cols={isFirefox ? TILES_W : TILES_W-1} 
-                    rows={TILES_H}
+                <Layer
                     value={calculateValue(null,
-                        [
-                            // {  top: 2, left: 5, right: 70, bottom: 25 }
-                        ],
-                        [
-                            { ...button, background: true }
-                        ])} 
+                        null,
+                        [{ ...button, background: true }]
+                    )} 
                     style={{ color: 'red', backgroundColor: 'transparent' }}
-                    // disabled
-                    readOnly
+                />
+                <Layer
+                    value={calculateValue(null,
+                        null,
+                        [button]
+                    )} 
+                    style={{ color: 'white', backgroundColor: 'transparent' }}
                 />
                 <textarea 
-                    className="layer"
-                    cols={isFirefox ? TILES_W : TILES_W-1} 
-                    rows={TILES_H}
-                    value={calculateValue(null,
-                        [
-                            // {  top: 2, left: 5, right: 70, bottom: 25 }
-                        ],
-                        [
-                            button
-                        ])} 
-                    style={{ color: 'white', backgroundColor: 'transparent' }}
-                    wrap="soft"
-                    // disabled
-                    readOnly
-                />
-               <textarea 
                     autoFocus 
-                    className="input"
+                    className="layer"
+                    cols={TILES_W} 
+                    rows={TILES_H}
+                    value={calculateInputValue({ x, y })} 
+                    style={{ color: 'green', backgroundColor: 'transparent' }}
                     onKeyDown={this.handleKeyDown}
                     onBlur={this.handleBlur}
                     ref={this.handleInputRef}
+                    // This is just to ignore a react error
+                    readOnly
                 />
             </div>
         );

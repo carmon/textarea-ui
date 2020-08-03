@@ -1,0 +1,13 @@
+.layer {
+    cursor: default;
+    font-family: monospace, monospace;
+    font-size: 22px;
+    border: none;
+    overflow: hidden;
+    outline: none;
+    /* -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none; */
+    resize: none; 
+    position: absolute;
+}

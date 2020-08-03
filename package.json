@@ -1,5 +1,5 @@
 {
-  "name": "text-ui",
+  "name": "textarea-ui",
   "version": "1.0.0",
   "description": "Boilerplate for react app.",
   "dependencies": {
