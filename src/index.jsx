@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { TILES_W, TILES_H } from './config';
+import { TEXT_WELCOME, TILES_W, TILES_H } from './config';
 
 import Layer from './layer/index.jsx';
 
@@ -7,6 +7,7 @@ import './style.css';
 
 // UI
 const TILES = {
+    BUTTON_BACKGROUND: '█',
     DOUBLE_SINGLE: {
         HOR: '═',
         VER: '│',
@@ -15,17 +16,19 @@ const TILES = {
         BOTTOM_LEFT: '╘',
         BOTTOM_RIGHT: '╛'
     },
+    NON_BREAKING_HYPHEN: '\u2011',
     NON_BREAKING_SPACE: '\xa0',
     SHADOW: '▓',
-    USER: '█'
+    USER: '_'
 };
 
 // General textarea value parser
 const calculateValue = (user, boxes, texts) => 
     new Array(TILES_H).fill(0).map((_, i) => 
         new Array(TILES_W).fill(0).map((_,j) => {
+            let tile;
             if (boxes) {
-                const tile = boxes.reduce((prev, curr) => {
+                const t = boxes.reduce((prev, curr) => {
                     if (prev) return prev;
 
                     if (i === curr.top) {
@@ -50,26 +53,26 @@ const calculateValue = (user, boxes, texts) =>
                     
                     return '';
                 }, '');
-                if (tile) return tile;
+                if (t) tile = t;
             }
 
             if (texts) {
-                const tile = texts.reduce((prev, curr) => {
+                const t = texts.reduce((prev, curr) => {
                     if (prev) return prev;
 
                     if (i === curr.begin.y) {
                         if (j >= curr.begin.x && j < curr.begin.x + curr.text.length) {
-                            return curr.background ? TILES.USER : curr.text.charAt(j - curr.begin.x);
+                            return curr.background ? TILES.BUTTON_BACKGROUND : curr.text.charAt(j - curr.begin.x);
                         }
                     }
                     return '';
                 }, '');
-                if (tile) return tile;
+                if (t) tile = t;
             }
             
-            return TILES.NON_BREAKING_SPACE;
-        })
-    ).join().replace(/,/gi, '');
+            return tile || TILES.NON_BREAKING_SPACE;
+        }).join('')
+    ).join('');
 
 const calculateInputValue = (user) =>
     new Array(TILES_H).fill(0).map((_, i) => 
@@ -80,13 +83,19 @@ const calculateInputValue = (user) =>
             }
             
             return TILES.NON_BREAKING_SPACE;
-        })
-    ).join().replace(/,/gi, '');
+        }).join('')
+    ).join('');
+
+// Parsers
+const parseText = text =>
+    text
+        .replace(/ /gi, TILES.NON_BREAKING_SPACE)
+        .replace(/-/gi, TILES.NON_BREAKING_HYPHEN);
 
 // Controllers
 const createButton = (begin, text) => ({
     begin,
-    text: `[ ${text} ]`.replace(/ /gi, TILES.NON_BREAKING_SPACE)
+    text: parseText(`[ ${text} ]`)
 })
 
 // MOVEMENT
@@ -158,7 +167,9 @@ export default class UI extends Component {
 
     render () {
         const { x, y } = this.state;
-        const button = createButton({ x: 10, y: 3 }, 'Button Example');
+        // This is not necessary to be here
+        const button = createButton({ x: 10, y: 4 }, 'Button Example');
+        button.selected = y === button.begin.y && x >= button.begin.x && x < button.begin.x + button.text.length;
         return (
             <div className="container">
                 <Layer 
@@ -166,6 +177,11 @@ export default class UI extends Component {
                         [
                             {  top: 0, left: 0, right: TILES_W - 1, bottom: TILES_H - 1 },
                             {  top: 5, left: 10, right: 40, bottom: 20 }
+                        ]
+                        ,
+                        [
+                            { begin: { x: 2, y: 0 }, text: parseText('textarea-ui')},
+                            { begin: { x: 2, y: 2 }, text: parseText(TEXT_WELCOME) },
                         ])} 
                     style={{ backgroundColor: 'cyan' }}
                 />
@@ -174,7 +190,7 @@ export default class UI extends Component {
                         null,
                         [{ ...button, background: true }]
                     )} 
-                    style={{ color: 'red', backgroundColor: 'transparent' }}
+                    style={{ color: button.selected ? 'green' : 'red', backgroundColor: 'transparent' }}
                 />
                 <Layer
                     value={calculateValue(null,
@@ -184,12 +200,13 @@ export default class UI extends Component {
                     style={{ color: 'white', backgroundColor: 'transparent' }}
                 />
                 <textarea 
-                    autoFocus 
+                    autoFocus
+                    // This class is loaded inside layer stylesheet
                     className="layer"
                     cols={TILES_W} 
                     rows={TILES_H}
                     value={calculateInputValue({ x, y })} 
-                    style={{ color: 'green', backgroundColor: 'transparent' }}
+                    style={{ color: 'black', backgroundColor: 'transparent' }}
                     onKeyDown={this.handleKeyDown}
                     onBlur={this.handleBlur}
                     ref={this.handleInputRef}

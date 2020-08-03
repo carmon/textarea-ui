@@ -9,14 +9,3 @@ body {
     display: flex;
     justify-content: center;
 }
-
-.input {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 0;
-    height: 0;
-    border: none;
-    z-index: -1;
-    resize: none;
-}
