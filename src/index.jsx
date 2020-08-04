@@ -1,11 +1,12 @@
-import React, { Component } from "react";
+import React, { useState } from "react";
 import { TEXT_WELCOME, TILES_W, TILES_H } from './config';
 
-import Layer from './layer/index.jsx';
+import InputLayer from './layer/input.jsx';
+import Layer from './layer/graphic.jsx';
 
 import './style.css';
 
-// UI
+// UI ASCII "THEME"
 const TILES = {
     BUTTON_BACKGROUND: '█',
     DOUBLE_SINGLE: {
@@ -110,28 +111,13 @@ const UP    = 1;
 const RIGHT = 2;
 const DOWN  = 3;
 
-export default class UI extends Component {
-    constructor(props) {
-        super(props);
+export default () => {
+    const [pos, setPos] = useState({ x: 0, y: 0 });
 
-        this.state = {
-            x: 0,
-            y: 0
-        };
+    const button = createButton({ x: 10, y: 5 }, 'Button Example');
+    button.selected = pos.y === button.begin.y && pos.x >= button.begin.x && pos.x < button.begin.x + button.text.length;
 
-        this.handleBlur = this.handleBlur.bind(this);
-        this.handleKeyDown = this.handleKeyDown.bind(this);
-
-        this.handleInputRef = ref => {
-            this.input = ref;
-        }
-    }
-
-    handleBlur(_) {
-        this.input.focus();
-    }
-
-    handleKeyDown(e) {
+    const handleKeyDown = (e) => {
         const dir = { x: 0, y: 0 };
         if (DIR.includes(e.keyCode)) {
             const i = DIR.indexOf(e.keyCode);
@@ -150,70 +136,60 @@ export default class UI extends Component {
                     dir.y += 1;
                     break;
             }
-            const pos = { x: this.state.x + dir.x, y: this.state.y + dir.y };
-            if (pos.x < 0)
-                pos.x = TILES_W - 1;
-            else if (pos.x === TILES_W)
-                pos.x = 0;
+            const target = { x: pos.x + dir.x, y: pos.y + dir.y };
+            if (target.x < 0)
+                target.x = TILES_W - 1;
+            else if (target.x === TILES_W)
+                target.x = 0;
 
-            if (pos.y < 0)
-                pos.y = TILES_H - 1;
-            else if (pos.y === TILES_H)
-                pos.y = 0;
+            if (target.y < 0)
+                target.y = TILES_H - 1;
+            else if (target.y === TILES_H)
+                target.y = 0;
 
-            this.setState(pos);
+            setPos(target);
         }
-    }
-
-    render () {
-        const { x, y } = this.state;
-        // This is not necessary to be here
-        const button = createButton({ x: 10, y: 4 }, 'Button Example');
-        button.selected = y === button.begin.y && x >= button.begin.x && x < button.begin.x + button.text.length;
-        return (
-            <div className="container">
-                <Layer 
-                    value={calculateValue(null, 
-                        [
-                            {  top: 0, left: 0, right: TILES_W - 1, bottom: TILES_H - 1 },
-                            {  top: 5, left: 10, right: 40, bottom: 20 }
-                        ]
-                        ,
-                        [
-                            { begin: { x: 2, y: 0 }, text: parseText('textarea-ui')},
-                            { begin: { x: 2, y: 2 }, text: parseText(TEXT_WELCOME) },
-                        ])} 
-                    style={{ backgroundColor: 'cyan' }}
-                />
-                <Layer
-                    value={calculateValue(null,
-                        null,
-                        [{ ...button, background: true }]
-                    )} 
-                    style={{ color: button.selected ? 'green' : 'red', backgroundColor: 'transparent' }}
-                />
-                <Layer
-                    value={calculateValue(null,
-                        null,
-                        [button]
-                    )} 
-                    style={{ color: 'white', backgroundColor: 'transparent' }}
-                />
-                <textarea 
-                    autoFocus
-                    // This class is loaded inside layer stylesheet
-                    className="layer"
-                    cols={TILES_W} 
-                    rows={TILES_H}
-                    value={calculateInputValue({ x, y })} 
-                    style={{ color: 'black', backgroundColor: 'transparent' }}
-                    onKeyDown={this.handleKeyDown}
-                    onBlur={this.handleBlur}
-                    ref={this.handleInputRef}
-                    // This is just to ignore a react error
-                    readOnly
-                />
-            </div>
-        );
-    }
-}
+    };
+    
+    return (
+        <div className="container">
+            <Layer 
+                value={calculateValue(null, 
+                    [
+                        {  top: 0, left: 0, right: TILES_W - 1, bottom: TILES_H - 1 },
+                        {  top: 6, left: 10, right: 40, bottom: 20 }
+                    ]
+                    ,
+                    [
+                        { begin: { x: 2, y: 0 }, text: parseText('textarea-ui')},
+                        { begin: { x: 2, y: 1 }, text: parseText(TEXT_WELCOME) }
+                    ])} 
+                style={{ backgroundColor: '#00BFF0' }}
+            />
+            <Layer
+                value={calculateValue(null,
+                    null,
+                    [
+                        { ...button, background: true },
+                        { begin: { x: 2, y: 2 }, text: parseText(TEXT_WELCOME) }
+                    ]
+                )} 
+                style={{ color: button.selected ? 'green' : 'red', backgroundColor: 'transparent' }}
+            />
+            <Layer
+                value={calculateValue(null,
+                    null,
+                    [
+                        button,
+                        { begin: { x: 2, y: 3 }, text: parseText(TEXT_WELCOME) }
+                    ]
+                )} 
+                style={{ color: 'white', backgroundColor: 'transparent' }}
+            />
+            <InputLayer
+                onKeyDown={handleKeyDown}
+                value={calculateInputValue(pos)}
+            /> 
+        </div>
+    );
+};
