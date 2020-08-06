@@ -1,13 +1,12 @@
 import React from "react";
-import { TILES_W, TILES_H } from '../config';
 
 import './style.css';
 
-export default ({ value, style }) => 
+export default ({ value, style, width, height }) => 
     <textarea
         className="layer"
-        cols={TILES_W} 
-        rows={TILES_H}
+        cols={width} 
+        rows={height}
         style={style}
         value={value}
         disabled

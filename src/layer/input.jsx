@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
-import { TILES_W, TILES_H } from '../config';
 
 import './style.css';
 
-export default ({ onKeyDown, value }) => {
+export default ({ onKeyDown, value, width, height }) => {
     // Focus Management
     const inputRef = useRef(null);
     const handleBlur = () => {
@@ -25,8 +24,8 @@ export default ({ onKeyDown, value }) => {
             autoFocus
             // This class is loaded inside layer stylesheet
             className="layer"
-            cols={TILES_W} 
-            rows={TILES_H}
+            cols={width} 
+            rows={height}
             value={value} 
             style={{ color, backgroundColor: 'transparent' }}
             onBlur={handleBlur}

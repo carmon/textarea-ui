@@ -1,32 +1,17 @@
 import React, { useState } from "react";
-import { TEXT_WELCOME, TILES_W, TILES_H } from './config';
+import { TILES } from './config';
 
 import InputLayer from './layer/input.jsx';
 import Layer from './layer/graphic.jsx';
 
+import { parseText } from './helpers';
+
 import './style.css';
 
-// UI ASCII "THEME"
-const TILES = {
-    BUTTON_BACKGROUND: '█',
-    DOUBLE_SINGLE: {
-        HOR: '═',
-        VER: '│',
-        TOP_LEFT: '╒',
-        TOP_RIGHT: '╕',
-        BOTTOM_LEFT: '╘',
-        BOTTOM_RIGHT: '╛'
-    },
-    NON_BREAKING_HYPHEN: '\u2011',
-    NON_BREAKING_SPACE: '\xa0',
-    SHADOW: '▓',
-    USER: '_'
-};
-
 // General textarea value parser
-const calculateValue = (user, boxes, texts) => 
-    new Array(TILES_H).fill(0).map((_, i) => 
-        new Array(TILES_W).fill(0).map((_,j) => {
+const calculateValue = ({ width, height }, boxes, texts) => 
+    new Array(height).fill(0).map((_, i) => 
+        new Array(width).fill(0).map((_,j) => {
             let tile;
             if (boxes) {
                 const t = boxes.reduce((prev, curr) => {
@@ -35,21 +20,21 @@ const calculateValue = (user, boxes, texts) =>
                     if (i === curr.top) {
                         if (j === curr.left)
                             return TILES.DOUBLE_SINGLE.TOP_LEFT;
-                        if (j === curr.right)
+                        if (j === curr.right - 1)
                             return TILES.DOUBLE_SINGLE.TOP_RIGHT;
-                        if (j > curr.left && j < curr.right)
+                        if (j > curr.left && j < curr.right - 1)
                             return TILES.DOUBLE_SINGLE.HOR;
                     }
 
-                    if (i === curr.bottom) {
+                    if (i === curr.bottom - 1) {
                         if (j === curr.left)
                             return TILES.DOUBLE_SINGLE.BOTTOM_LEFT;
-                        if (j === curr.right)
+                        if (j === curr.right - 1)
                             return TILES.DOUBLE_SINGLE.BOTTOM_RIGHT;
-                        if (j > curr.left && j < curr.right)
+                        if (j > curr.left && j < curr.right - 1)
                             return TILES.DOUBLE_SINGLE.HOR;
                     } 
-                    if ((j === curr.left || j === curr.right) && i > curr.top && i < curr.bottom)
+                    if ((j === curr.left || j === curr.right - 1) && i > curr.top && i < curr.bottom)
                         return TILES.DOUBLE_SINGLE.VER;
                     
                     return '';
@@ -75,9 +60,9 @@ const calculateValue = (user, boxes, texts) =>
         }).join('')
     ).join('');
 
-const calculateInputValue = (user) =>
-    new Array(TILES_H).fill(0).map((_, i) => 
-        new Array(TILES_W).fill(0).map((_,j) => {
+const calculateInputValue = (user, { width, height }) =>
+    new Array(height).fill(0).map((_, i) => 
+        new Array(width).fill(0).map((_,j) => {
             if (user) {
                 if (j === user.x && i === user.y)
                     return TILES.USER;
@@ -87,17 +72,14 @@ const calculateInputValue = (user) =>
         }).join('')
     ).join('');
 
-// Parsers
-const parseText = text =>
-    text
-        .replace(/ /gi, TILES.NON_BREAKING_SPACE)
-        .replace(/-/gi, TILES.NON_BREAKING_HYPHEN);
+const checkButtonFocus = (pos, button) =>
+    pos.y === button.begin.y && pos.x >= button.begin.x && pos.x < button.begin.x + button.text.length;
 
-// Controllers
-const createButton = (begin, text) => ({
-    begin,
-    text: parseText(`[ ${text} ]`)
-})
+// ACTION
+const ACTION = [
+    13, // ENTER
+    32  // SPACEBAR
+]
 
 // MOVEMENT
 const DIR = [
@@ -111,13 +93,18 @@ const UP    = 1;
 const RIGHT = 2;
 const DOWN  = 3;
 
-export default () => {
+export default ({ window }) => {
+    const { buttons, text, title, x, y, width, height } = window;
+
     const [pos, setPos] = useState({ x: 0, y: 0 });
 
-    const button = createButton({ x: 10, y: 5 }, 'Button Example');
-    button.selected = pos.y === button.begin.y && pos.x >= button.begin.x && pos.x < button.begin.x + button.text.length;
-
     const handleKeyDown = (e) => {
+        e.preventDefault();
+
+        if (ACTION.includes(e.keyCode) && buttons.some(b => b.selected)) {
+            buttons.filter(b => b.selected)[0].action();
+        }
+
         const dir = { x: 0, y: 0 };
         if (DIR.includes(e.keyCode)) {
             const i = DIR.indexOf(e.keyCode);
@@ -138,57 +125,74 @@ export default () => {
             }
             const target = { x: pos.x + dir.x, y: pos.y + dir.y };
             if (target.x < 0)
-                target.x = TILES_W - 1;
-            else if (target.x === TILES_W)
+                target.x = width - 1;
+            else if (target.x === width)
                 target.x = 0;
 
             if (target.y < 0)
-                target.y = TILES_H - 1;
-            else if (target.y === TILES_H)
+                target.y = height - 1;
+            else if (target.y === height)
                 target.y = 0;
 
             setPos(target);
         }
     };
-    
+
+    buttons.forEach(b => { b.selected = checkButtonFocus(pos, b); });    
     return (
         <div className="container">
             <Layer 
-                value={calculateValue(null, 
+                value={calculateValue(window, 
                     [
-                        {  top: 0, left: 0, right: TILES_W - 1, bottom: TILES_H - 1 },
-                        {  top: 6, left: 10, right: 40, bottom: 20 }
+                        {  top: y, left: x, right: x + width, bottom: y + height }
                     ]
                     ,
                     [
-                        { begin: { x: 2, y: 0 }, text: parseText('textarea-ui')},
-                        { begin: { x: 2, y: 1 }, text: parseText(TEXT_WELCOME) }
+                        title ? { begin: { x: 2, y: 0 }, text: parseText(title)} : {},
+                        text ? { begin: { x: 14, y: 2 }, text: parseText(text)} : {}
                     ])} 
                 style={{ backgroundColor: '#00BFF0' }}
+                width={width}
+                height={height}
             />
             <Layer
-                value={calculateValue(null,
+                value={calculateValue(window,
                     null,
                     [
-                        { ...button, background: true },
-                        { begin: { x: 2, y: 2 }, text: parseText(TEXT_WELCOME) }
+                        ...buttons.filter(b => !b.selected).map(b => ({ ...b, background: true }))
                     ]
                 )} 
-                style={{ color: button.selected ? 'green' : 'red', backgroundColor: 'transparent' }}
+                style={{ color: 'red', backgroundColor: 'transparent' }}
+                width={width}
+                height={height}
             />
+            {buttons.some(b => b.selected) &&
+                <Layer
+                    value={calculateValue(window,
+                        null,
+                        [
+                            ...buttons.filter(b => b.selected).map(b => ({ ...b, background: true }))
+                        ]
+                    )} 
+                    style={{ color: 'green', backgroundColor: 'transparent' }}
+                    width={width}
+                    height={height}
+                />
+            }
             <Layer
-                value={calculateValue(null,
+                value={calculateValue(window,
                     null,
-                    [
-                        button,
-                        { begin: { x: 2, y: 3 }, text: parseText(TEXT_WELCOME) }
-                    ]
+                    buttons
                 )} 
                 style={{ color: 'white', backgroundColor: 'transparent' }}
+                width={width}
+                height={height}
             />
             <InputLayer
                 onKeyDown={handleKeyDown}
-                value={calculateInputValue(pos)}
+                value={calculateInputValue(pos, window)}
+                width={width}
+                height={height}
             /> 
         </div>
     );
