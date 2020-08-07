@@ -14,6 +14,7 @@ There are 2 types of layers:
 ## What's done?
 - POC in reactjs
 - Cross-browser sizing (at zoom 100%)
+- [Vercel deployment](https://textarea-ui-git-master.carmon.vercel.app/) (could be down)
 
 ## Basic Types so far
 - Texts
