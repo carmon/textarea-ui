@@ -1,85 +1,36 @@
 import React, { useState } from "react";
-import { TILES } from './config';
 
 import InputLayer from './layer/input.jsx';
 import Layer from './layer/graphic.jsx';
 
 import { parseText } from './helpers';
+import { calcInputLayerValue, calcKeyLayerValue, calcLayerValue } from './values';
 
 import './style.css';
 
-// General textarea value parser
-const calculateValue = ({ width, height }, boxes, texts) => 
-    new Array(height).fill(0).map((_, i) => 
-        new Array(width).fill(0).map((_,j) => {
-            let tile;
-            if (boxes) {
-                const t = boxes.reduce((prev, curr) => {
-                    if (prev) return prev;
-
-                    if (i === curr.top) {
-                        if (j === curr.left)
-                            return TILES.DOUBLE_SINGLE.TOP_LEFT;
-                        if (j === curr.right - 1)
-                            return TILES.DOUBLE_SINGLE.TOP_RIGHT;
-                        if (j > curr.left && j < curr.right - 1)
-                            return TILES.DOUBLE_SINGLE.HOR;
-                    }
-
-                    if (i === curr.bottom - 1) {
-                        if (j === curr.left)
-                            return TILES.DOUBLE_SINGLE.BOTTOM_LEFT;
-                        if (j === curr.right - 1)
-                            return TILES.DOUBLE_SINGLE.BOTTOM_RIGHT;
-                        if (j > curr.left && j < curr.right - 1)
-                            return TILES.DOUBLE_SINGLE.HOR;
-                    } 
-                    if ((j === curr.left || j === curr.right - 1) && i > curr.top && i < curr.bottom)
-                        return TILES.DOUBLE_SINGLE.VER;
-                    
-                    return '';
-                }, '');
-                if (t) tile = t;
-            }
-
-            if (texts) {
-                const t = texts.reduce((prev, curr) => {
-                    if (prev) return prev;
-
-                    if (i === curr.begin.y) {
-                        if (j >= curr.begin.x && j < curr.begin.x + curr.text.length) {
-                            return curr.background ? TILES.BUTTON_BACKGROUND : curr.text.charAt(j - curr.begin.x);
-                        }
-                    }
-                    return '';
-                }, '');
-                if (t) tile = t;
-            }
-            
-            return tile || TILES.NON_BREAKING_SPACE;
-        }).join('')
-    ).join('');
-
-const calculateInputValue = (user, { width, height }) =>
-    new Array(height).fill(0).map((_, i) => 
-        new Array(width).fill(0).map((_,j) => {
-            if (user) {
-                if (j === user.x && i === user.y)
-                    return TILES.USER;
-            }
-            
-            return TILES.NON_BREAKING_SPACE;
-        }).join('')
-    ).join('');
-
 const checkButtonFocus = (pos, button) =>
     pos.y === button.begin.y && pos.x >= button.begin.x && pos.x < button.begin.x + button.text.length;
+
+const getButtonPos = button => ({
+    x: button.begin.x + button.text.toLowerCase().indexOf(button.hotkey),
+    y: button.begin.y
+});
 
 // ACTION
 const ACTION = [
     13, // ENTER
     32  // SPACEBAR
 ]
+
+// FORCE MODE
+const NEXT = [ 
+    9, // TAB
+    39, // RIGHT
+];
+
+const PREV = [
+    37, // LEFT
+];
 
 // MOVEMENT
 const DIR = [
@@ -93,56 +44,106 @@ const UP    = 1;
 const RIGHT = 2;
 const DOWN  = 3;
 
-export default ({ window }) => {
+export default ({ forceMode, window }) => {
     const { buttons, text, title, x, y, width, height } = window;
 
-    const [pos, setPos] = useState({ x: 0, y: 0 });
+    const HOTKEYS = buttons.reduce((prev, curr) => {
+        const key = curr.text
+            .split('')
+            .reduce(
+                (p, c) => {
+                    if (p) return p;
+                    if (!prev.includes(c)) return c;
+                }, '')
+            .toLowerCase();
+
+        // Mutate button
+        curr.hotkey = key;
+        return [ ...prev, key ];
+    }, []);
+
+    // Someone's got to do it
+    const parsedButtons = buttons.map(b => ({ ...b, text: parseText(`[ ${b.text} ]`) })); 
+    
+    const [pos, setPos] = useState(
+        forceMode && parsedButtons.length 
+            ? getButtonPos(parsedButtons[0]) 
+            : { x: 0, y: 0 }
+        );
+    
+    const [i, setI] = useState(0);
+    
+    // Always only one is marked selected
+    const [selected, rest] = parsedButtons.reduce((prev, curr) => {
+        if (checkButtonFocus(pos, curr)) return [ curr, prev[1] ];
+        return [ prev[0] || null, prev[1] ? [ ...prev[1], curr ] : [curr]];
+    }, []);
 
     const handleKeyDown = (e) => {
         e.preventDefault();
 
-        if (ACTION.includes(e.keyCode) && buttons.some(b => b.selected)) {
-            buttons.filter(b => b.selected)[0].action();
+        if (ACTION.includes(e.keyCode) && selected) {
+            selected.action();
         }
 
-        const dir = { x: 0, y: 0 };
-        if (DIR.includes(e.keyCode)) {
-            const i = DIR.indexOf(e.keyCode);
-            const mod = (i % 2 ? i - 1 : i) / 2;
-            switch (mod) {
-                case LEFT:
-                    dir.x -= 1;
-                    break;
-                case RIGHT:
-                    dir.x += 1;
-                    break;
-                case UP:
-                    dir.y -= 1;
-                    break;
-                case DOWN:
-                    dir.y += 1;
-                    break;
+        const k = e.key.toLowerCase();
+        if (HOTKEYS.includes(k)) {
+            buttons.filter(b => b.hotkey === k)[0].action();
+        }
+
+        if (forceMode) {
+            if (parsedButtons.length) {
+                if (PREV.includes(e.keyCode)) {
+                    const bPositions = parsedButtons.map(b => getButtonPos(b));
+                    const prev = i - 1 < 0 ? bPositions.length - 1 : i - 1;
+                    setI(prev);
+                    setPos(bPositions[prev]);
+                }
+                if (NEXT.includes(e.keyCode)) {
+                    const bPositions = parsedButtons.map(b => getButtonPos(b));
+                    const next = i + 1 === bPositions.length ? 0 : i + 1;
+                    setI(next);
+                    setPos(bPositions[next]);                    
+                }
             }
-            const target = { x: pos.x + dir.x, y: pos.y + dir.y };
-            if (target.x < 0)
-                target.x = width - 1;
-            else if (target.x === width)
-                target.x = 0;
-
-            if (target.y < 0)
-                target.y = height - 1;
-            else if (target.y === height)
-                target.y = 0;
-
-            setPos(target);
-        }
+        } else {
+            const dir = { x: 0, y: 0 };
+            if (DIR.includes(e.keyCode)) {
+                const i = DIR.indexOf(e.keyCode);
+                const mod = (i % 2 ? i - 1 : i) / 2;
+                switch (mod) {
+                    case LEFT:
+                        dir.x -= 1;
+                        break;
+                    case RIGHT:
+                        dir.x += 1;
+                        break;
+                    case UP:
+                        dir.y -= 1;
+                        break;
+                    case DOWN:
+                        dir.y += 1;
+                        break;
+                }
+                const target = { x: pos.x + dir.x, y: pos.y + dir.y };
+                if (target.x < 0)
+                    target.x = width - 1;
+                else if (target.x === width)
+                    target.x = 0;
+    
+                if (target.y < 0)
+                    target.y = height - 1;
+                else if (target.y === height)
+                    target.y = 0;
+    
+                setPos(target);
+            }
+        }        
     };
-
-    buttons.forEach(b => { b.selected = checkButtonFocus(pos, b); });    
     return (
         <div className="container">
-            <Layer 
-                value={calculateValue(window, 
+            <Layer
+                value={calcLayerValue(window,
                     [
                         {  top: y, left: x, right: x + width, bottom: y + height }
                     ]
@@ -156,23 +157,19 @@ export default ({ window }) => {
                 height={height}
             />
             <Layer
-                value={calculateValue(window,
+                value={calcLayerValue(window,
                     null,
-                    [
-                        ...buttons.filter(b => !b.selected).map(b => ({ ...b, background: true }))
-                    ]
+                    rest.map(b => ({ ...b, background: true }))
                 )} 
                 style={{ color: 'red', backgroundColor: 'transparent' }}
                 width={width}
                 height={height}
             />
-            {buttons.some(b => b.selected) &&
+            {selected &&
                 <Layer
-                    value={calculateValue(window,
+                    value={calcLayerValue(window,
                         null,
-                        [
-                            ...buttons.filter(b => b.selected).map(b => ({ ...b, background: true }))
-                        ]
+                        [{ ...selected, background: true }]
                     )} 
                     style={{ color: 'green', backgroundColor: 'transparent' }}
                     width={width}
@@ -180,17 +177,26 @@ export default ({ window }) => {
                 />
             }
             <Layer
-                value={calculateValue(window,
+                value={calcLayerValue(window,
                     null,
-                    buttons
+                    parsedButtons
                 )} 
                 style={{ color: 'white', backgroundColor: 'transparent' }}
                 width={width}
                 height={height}
             />
+            <Layer
+                value={calcKeyLayerValue(window,
+                    HOTKEYS,
+                    parsedButtons
+                )} 
+                style={{ color: 'grey', backgroundColor: 'transparent' }}
+                width={width}
+                height={height}
+            />
             <InputLayer
                 onKeyDown={handleKeyDown}
-                value={calculateInputValue(pos, window)}
+                value={calcInputLayerValue(pos, window)}
                 width={width}
                 height={height}
             /> 

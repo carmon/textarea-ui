@@ -1,15 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import { parseText } from './src/helpers';
 import UI from "./src/index.jsx";
-
 
 // Controller creators
 const createButton = (begin, text) => ({
     action: () => window.alert(`Button ${text}`),
     begin,
-    text: parseText(`[ ${text} ]`)
+    text,
 });
 
 const MainWindow = {
@@ -22,7 +20,7 @@ const MainWindow = {
 const HotLineMiami = {
     buttons: [createButton({ x: 20, y: 5 }, 'Yes'), createButton({ x: 35, y: 5 }, 'No')],
     text: 'Do you like hurting other people?',
-    title: 'HOT LINE MAIAMEE',
+    title: 'Hotline Maiamee',
     
     x: 0,
     y: 0, 
@@ -31,7 +29,7 @@ const HotLineMiami = {
 };
 
 ReactDOM.render(
-    <UI window={HotLineMiami} />,
+    <UI window={HotLineMiami} forceMode />,
     document.getElementById('root')
 );
 
