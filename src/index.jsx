@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import InputLayer from './layer/input.jsx';
 import Layer from './layer/graphic.jsx';
 
-import { parseText } from './helpers';
+import { calcHighlighterValue, parseText } from '../lib/index';
 import { calcInputLayerValue, calcKeyLayerValue, calcLayerValue } from './values';
 
 import './style.css';
@@ -186,11 +186,17 @@ export default ({ forceMode, window }) => {
                 height={height}
             />
             <Layer
+                value={calcHighlighterValue(window, pos)} 
+                style={{ color: 'black', backgroundColor: 'transparent' }}
+                width={width}
+                height={height}
+            />
+            <Layer
                 value={calcKeyLayerValue(window,
                     HOTKEYS,
-                    parsedButtons
+                    parsedButtons                    
                 )} 
-                style={{ color: 'grey', backgroundColor: 'transparent' }}
+                style={{ color: 'white', backgroundColor: 'transparent' }}
                 width={width}
                 height={height}
             />

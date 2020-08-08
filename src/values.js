@@ -62,13 +62,14 @@ export const calcKeyLayerValue = ({ width, height }, filter, texts) =>
                     if (prev) return prev;
 
                     if (i === curr.begin.y) {
-                        if (j >= curr.begin.x && j < curr.begin.x + curr.text.length) {
-                            return curr.background ? TILES.BUTTON_BACKGROUND : curr.text.charAt(j - curr.begin.x);
+                        const char = curr.text.charAt(j - curr.begin.x);
+                        if (j >= curr.begin.x && j < curr.begin.x + curr.text.length && filter.includes(char.toLowerCase())) {
+                            return curr.background ? TILES.BUTTON_BACKGROUND : char;
                         }
                     }
                     return '';
                 }, '');
-                if (t && filter.includes(t.toLowerCase())) tile = t;
+                if (t) tile = t;
             }
             
             return tile || TILES.NON_BREAKING_SPACE;

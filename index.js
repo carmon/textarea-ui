@@ -20,7 +20,7 @@ const MainWindow = {
 const HotLineMiami = {
     buttons: [createButton({ x: 20, y: 5 }, 'Yes'), createButton({ x: 35, y: 5 }, 'No')],
     text: 'Do you like hurting other people?',
-    title: 'Hotline Maiamee',
+    title: 'Hotline  Maiamee',
     
     x: 0,
     y: 0, 

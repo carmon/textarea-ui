@@ -10,17 +10,31 @@
     "@babel/core": "^7.10.5",
     "@babel/preset-env": "^7.10.4",
     "@babel/preset-react": "^7.10.4",
+    "@types/react": "^16.9.45",
+    "@typescript-eslint/eslint-plugin": "^3.8.0",
+    "@typescript-eslint/parser": "^3.8.0",
     "babel-loader": "^8.1.0",
     "css-loader": "^3.6.0",
+    "eslint": "^7.6.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.4",
     "file-loader": "^6.0.0",
+    "prettier": "^2.0.5",
     "react-hot-loader": "^4.12.21",
     "style-loader": "^1.2.1",
+    "ts-loader": "^8.0.2",
+    "typescript": "^3.9.7",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/carmon/textarea-ui.git"
+  },
   "scripts": {
     "build": "webpack",
+    "build:prod": "webpack --env.NODE_ENV=production",
     "start": "npm run build && webpack-dev-server --open",
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "webpack --watch"
