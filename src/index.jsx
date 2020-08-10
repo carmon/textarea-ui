@@ -1,20 +1,13 @@
 import React, { useState } from "react";
 
-import InputLayer from './layer/input.jsx';
-import Layer from './layer/graphic.jsx';
+import CommonLayer from '../lib/layer/common';
+import InputLayer from '../lib/layer/input';
 
-import { calcHighlighterValue, parseText } from '../lib/index';
-import { calcInputLayerValue, calcKeyLayerValue, calcLayerValue } from './values';
+import { screen } from '../lib/index';
+import { checkButtonFocus, getButtonPos, parseText, THEME, NON_BREAKING } from '../lib/util';
+import { calcLayerValue } from './values';
 
 import './style.css';
-
-const checkButtonFocus = (pos, button) =>
-    pos.y === button.begin.y && pos.x >= button.begin.x && pos.x < button.begin.x + button.text.length;
-
-const getButtonPos = button => ({
-    x: button.begin.x + button.text.toLowerCase().indexOf(button.hotkey),
-    y: button.begin.y
-});
 
 // ACTION
 const ACTION = [
@@ -140,23 +133,95 @@ export default ({ forceMode, window }) => {
             }
         }        
     };
+
+    const boxes = [
+        {  top: y, left: x, right: x + width, bottom: y + height }
+    ];
+    const texts = [
+        title ? { begin: { x: 2, y: 0 }, text: parseText(title)} : {},
+        text ? { begin: { x: 14, y: 2 }, text: parseText(text)} : {}
+    ];
+    const backgroundValue = screen(window, tilePos => {
+        let tile;
+        if (boxes) {
+            const t = boxes.reduce((prev, curr) => {
+                if (prev) return prev;
+
+                if (tilePos.y === curr.top) {
+                    if (tilePos.x === curr.left)
+                        return THEME.DOUBLE_SINGLE.TOP_LEFT;
+                    if (tilePos.x === curr.right - 1)
+                        return THEME.DOUBLE_SINGLE.TOP_RIGHT;
+                    if (tilePos.x > curr.left && tilePos.x < curr.right - 1)
+                        return THEME.DOUBLE_SINGLE.HOR;
+                }
+
+                if (tilePos.y === curr.bottom - 1) {
+                    if (tilePos.x === curr.left)
+                        return THEME.DOUBLE_SINGLE.BOTTOM_LEFT;
+                    if (tilePos.x === curr.right - 1)
+                        return THEME.DOUBLE_SINGLE.BOTTOM_RIGHT;
+                    if (tilePos.x > curr.left && tilePos.x < curr.right - 1)
+                        return THEME.DOUBLE_SINGLE.HOR;
+                } 
+                if ((tilePos.x === curr.left || tilePos.x === curr.right - 1) && tilePos.y > curr.top && tilePos.y < curr.bottom)
+                    return THEME.DOUBLE_SINGLE.VER;
+                
+                return '';
+            }, '');
+            if (t) tile = t;
+        }
+
+        if (texts) {
+            const t = texts.reduce((prev, curr) => {
+                if (prev) return prev;
+
+                if (tilePos.y === curr.begin.y) {
+                    if (tilePos.x >= curr.begin.x && tilePos.x < curr.begin.x + curr.text.length) {
+                        return curr.background ? THEME.BACKGROUND : curr.text.charAt(tilePos.x - curr.begin.x);
+                    }
+                }
+                return '';
+            }, '');
+            if (t) tile = t;
+        }
+            
+        return tile || NON_BREAKING.SPACE;
+    });
+
+    const highlighterValue = screen(window, tilePos => 
+            tilePos.x === pos.x && tilePos.y === pos.y ? THEME.BACKGROUND : NON_BREAKING.SPACE);
+
+    const hotkeysValue = screen(window, tilePos => {
+        let tile;
+        if (parsedButtons) {
+            const t = parsedButtons.reduce((prev, curr) => {
+                if (prev) return prev;
+                if (tilePos.y === curr.begin.y) {
+                    const char = curr.text.charAt(tilePos.x - curr.begin.x);
+                    if (tilePos.x >= curr.begin.x && tilePos.x < curr.begin.x + curr.text.length && HOTKEYS.includes(char.toLowerCase())) {
+                        return curr.background ? THEME.BACKGROUND : char;
+                    }
+                }
+                return '';
+            }, '');
+            if (t) tile = t;
+        }
+        return tile || NON_BREAKING.SPACE;
+    });
+
+    const inputValue = screen(window, tilePos => 
+        tilePos.x === pos.x && tilePos.y === pos.y ? THEME.USER : NON_BREAKING.SPACE);
+
     return (
         <div className="container">
-            <Layer
-                value={calcLayerValue(window,
-                    [
-                        {  top: y, left: x, right: x + width, bottom: y + height }
-                    ]
-                    ,
-                    [
-                        title ? { begin: { x: 2, y: 0 }, text: parseText(title)} : {},
-                        text ? { begin: { x: 14, y: 2 }, text: parseText(text)} : {}
-                    ])} 
+            <CommonLayer
+                value={backgroundValue} 
                 style={{ backgroundColor: '#00BFF0' }}
                 width={width}
                 height={height}
             />
-            <Layer
+            <CommonLayer
                 value={calcLayerValue(window,
                     null,
                     rest.map(b => ({ ...b, background: true }))
@@ -166,7 +231,7 @@ export default ({ forceMode, window }) => {
                 height={height}
             />
             {selected &&
-                <Layer
+                <CommonLayer
                     value={calcLayerValue(window,
                         null,
                         [{ ...selected, background: true }]
@@ -176,7 +241,7 @@ export default ({ forceMode, window }) => {
                     height={height}
                 />
             }
-            <Layer
+            <CommonLayer
                 value={calcLayerValue(window,
                     null,
                     parsedButtons
@@ -185,24 +250,21 @@ export default ({ forceMode, window }) => {
                 width={width}
                 height={height}
             />
-            <Layer
-                value={calcHighlighterValue(window, pos)} 
+            <CommonLayer
+                value={highlighterValue} 
                 style={{ color: 'black', backgroundColor: 'transparent' }}
                 width={width}
                 height={height}
             />
-            <Layer
-                value={calcKeyLayerValue(window,
-                    HOTKEYS,
-                    parsedButtons                    
-                )} 
-                style={{ color: 'white', backgroundColor: 'transparent' }}
+            <CommonLayer
+                value={hotkeysValue} 
+                style={{ color: 'grey', backgroundColor: 'transparent' }}
                 width={width}
                 height={height}
             />
             <InputLayer
                 onKeyDown={handleKeyDown}
-                value={calcInputLayerValue(pos, window)}
+                value={inputValue}
                 width={width}
                 height={height}
             /> 

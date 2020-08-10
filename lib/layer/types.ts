@@ -1,6 +1,10 @@
 export interface LayerProps {
     value: string;
-    style: any; // just for now
+    style?: any; // just for now
     width: number;
     height: number;
+}
+
+export interface InputProps extends LayerProps {
+    onKeyDown: () => void;
 }

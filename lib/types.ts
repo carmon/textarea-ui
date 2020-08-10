@@ -1,3 +1,4 @@
+// Aestetics
 export interface Theme {
     BACKGROUND: string;
     DOUBLE_SINGLE: {
@@ -12,14 +13,23 @@ export interface Theme {
         SHADOW: string;
     }
     USER: string;
-};
+}
 
+// Components
 export interface Window {
     width: number;
     height: number;
 }
 
-export type Behaviour = (c: Coord) => string;
+export interface Button {
+    action: () => void;
+    begin: Coord;
+    hotkey: string; // This is calculated
+    text: string;
+}
+
+// Core
+export type Mapper = (c: Coord) => string;
 
 export interface Coord {
     x: number;

@@ -1,13 +1,21 @@
-import React, { useEffect, useRef, useState } from "react";
+import * as React from "react";
+import { useEffect, useRef, useState } from "react";
+
+import { InputProps } from './types';
 
 import './style.css';
 
-export default ({ onKeyDown, value, width, height }) => {
+export default ({ 
+    onKeyDown, 
+    value, 
+    width, 
+    height 
+}: InputProps) => {
     // Focus Management
-    const inputRef = useRef(null);
+    const inputRef = useRef<HTMLTextAreaElement>(null);
     const handleBlur = () => {
         // setTimeout necessary for Firefox
-        setTimeout(() => { inputRef.current.focus(); }, 1);
+        setTimeout(() => { inputRef.current && inputRef.current.focus(); }, 1);
     };
 
     // Color tilt
@@ -22,7 +30,6 @@ export default ({ onKeyDown, value, width, height }) => {
     return (
         <textarea 
             autoFocus
-            // This class is loaded inside layer stylesheet
             className="layer"
             cols={width} 
             rows={height}
