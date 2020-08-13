@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import UI from "./src/index.jsx";
+import UI from "./lib/index.tsx";
 
 // Controller creators
 const createButton = (begin, text) => ({
@@ -10,12 +10,12 @@ const createButton = (begin, text) => ({
     text,
 });
 
-const MainWindow = {
-    text: 'Welcome to textarea-ui, a retro inspired text UI for your favourite browser.',
-    title: 'textarea-ui',
-    width: 100,
-    height: 25,
-};
+// const MainWindow = {
+//     text: 'Welcome to textarea-ui, a retro inspired text UI for your favourite browser.',
+//     title: 'textarea-ui',
+//     width: 100,
+//     height: 25,
+// };
 
 const HotLineMiami = {
     buttons: [createButton({ x: 20, y: 5 }, 'Yes'), createButton({ x: 35, y: 5 }, 'No')],

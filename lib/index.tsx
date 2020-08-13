@@ -1,13 +1,20 @@
-import React, { useState } from "react";
+import * as React from 'react';
+import { useState } from 'react';
 
-import CommonLayer from '../lib/layer/common';
-import InputLayer from '../lib/layer/input';
+import CommonLayer from './layer/common';
+import InputLayer from './layer/input';
 
-import { screen } from '../lib/index';
-import { checkButtonFocus, getButtonPos, parseText, THEME, NON_BREAKING } from '../lib/util';
-import { calcLayerValue } from './values';
+import { Box, Button, Mapper, Window, Coord } from './types';
+import { checkButtonFocus, getButtonPos, parseText, THEME, NON_BREAKING } from './util';
 
 import './style.css';
+
+const screen = ({ width, height }: Window, func: Mapper<any>) => (...args:any[]) =>
+    new Array(height).fill(0).map((_, y) => 
+        new Array(width).fill(0).map((_,x) => 
+            func({ x , y }, ...args)
+        ).join('')
+    ).join('');
 
 // ACTION
 const ACTION = [
@@ -37,16 +44,22 @@ const UP    = 1;
 const RIGHT = 2;
 const DOWN  = 3;
 
-export default ({ forceMode, window }) => {
+interface PropTypes {
+    forceMode: boolean;
+    window: Window;
+}
+
+export default ({ forceMode, window }: PropTypes) => {
     const { buttons, text, title, x, y, width, height } = window;
 
-    const HOTKEYS = buttons.reduce((prev, curr) => {
+    const HOTKEYS = buttons.reduce((prev: string[], curr: Button) => {
         const key = curr.text
             .split('')
             .reduce(
                 (p, c) => {
                     if (p) return p;
                     if (!prev.includes(c)) return c;
+                    return '';
                 }, '')
             .toLowerCase();
 
@@ -67,12 +80,12 @@ export default ({ forceMode, window }) => {
     const [i, setI] = useState(0);
     
     // Always only one is marked selected
-    const [selected, rest] = parsedButtons.reduce((prev, curr) => {
+    const [selected, rest] = parsedButtons.reduce((prev: any, curr) => {
         if (checkButtonFocus(pos, curr)) return [ curr, prev[1] ];
         return [ prev[0] || null, prev[1] ? [ ...prev[1], curr ] : [curr]];
-    }, []);
+    }, [undefined, []]);
 
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         e.preventDefault();
 
         if (ACTION.includes(e.keyCode) && selected) {
@@ -134,14 +147,7 @@ export default ({ forceMode, window }) => {
         }        
     };
 
-    const boxes = [
-        {  top: y, left: x, right: x + width, bottom: y + height }
-    ];
-    const texts = [
-        title ? { begin: { x: 2, y: 0 }, text: parseText(title)} : {},
-        text ? { begin: { x: 14, y: 2 }, text: parseText(text)} : {}
-    ];
-    const backgroundValue = screen(window, tilePos => {
+    const calcLayerValue = screen(window, (tilePos: Coord, boxes: Box[], texts: Button[]) => {
         let tile;
         if (boxes) {
             const t = boxes.reduce((prev, curr) => {
@@ -189,17 +195,18 @@ export default ({ forceMode, window }) => {
         return tile || NON_BREAKING.SPACE;
     });
 
-    const highlighterValue = screen(window, tilePos => 
-            tilePos.x === pos.x && tilePos.y === pos.y ? THEME.BACKGROUND : NON_BREAKING.SPACE);
+    const calcHighlighterValue = screen(window, (tilePos, p) => 
+            tilePos.x === p.x && tilePos.y === p.y ? THEME.BACKGROUND : NON_BREAKING.SPACE);
 
-    const hotkeysValue = screen(window, tilePos => {
+    const calcHotkeysValue = screen(window, (tilePos: Coord, texts: Button[], filter:string[]) => {
         let tile;
-        if (parsedButtons) {
-            const t = parsedButtons.reduce((prev, curr) => {
+        if (texts) {
+            const t = texts.reduce((prev, curr) => {
                 if (prev) return prev;
+
                 if (tilePos.y === curr.begin.y) {
                     const char = curr.text.charAt(tilePos.x - curr.begin.x);
-                    if (tilePos.x >= curr.begin.x && tilePos.x < curr.begin.x + curr.text.length && HOTKEYS.includes(char.toLowerCase())) {
+                    if (tilePos.x >= curr.begin.x && tilePos.x < curr.begin.x + curr.text.length && filter.includes(char.toLowerCase())) {
                         return curr.background ? THEME.BACKGROUND : char;
                     }
                 }
@@ -210,21 +217,26 @@ export default ({ forceMode, window }) => {
         return tile || NON_BREAKING.SPACE;
     });
 
-    const inputValue = screen(window, tilePos => 
-        tilePos.x === pos.x && tilePos.y === pos.y ? THEME.USER : NON_BREAKING.SPACE);
+    const calcInputValue = screen(window, (tilePos, p) => 
+        tilePos.x === p.x && tilePos.y === p.y ? THEME.USER : NON_BREAKING.SPACE);
 
     return (
         <div className="container">
             <CommonLayer
-                value={backgroundValue} 
+                value={calcLayerValue(
+                    [{  top: y, left: x, right: x + width, bottom: y + height }], 
+                    [
+                        title ? { begin: { x: 2, y: 0 }, text: parseText(title)} : {},
+                        text ? { begin: { x: 14, y: 2 }, text: parseText(text)} : {}
+                    ])} 
                 style={{ backgroundColor: '#00BFF0' }}
                 width={width}
                 height={height}
             />
             <CommonLayer
-                value={calcLayerValue(window,
+                value={calcLayerValue(
                     null,
-                    rest.map(b => ({ ...b, background: true }))
+                    rest.map((b: Button) => ({ ...b, background: true }))
                 )} 
                 style={{ color: 'red', backgroundColor: 'transparent' }}
                 width={width}
@@ -232,7 +244,7 @@ export default ({ forceMode, window }) => {
             />
             {selected &&
                 <CommonLayer
-                    value={calcLayerValue(window,
+                    value={calcLayerValue(
                         null,
                         [{ ...selected, background: true }]
                     )} 
@@ -242,7 +254,7 @@ export default ({ forceMode, window }) => {
                 />
             }
             <CommonLayer
-                value={calcLayerValue(window,
+                value={calcLayerValue(
                     null,
                     parsedButtons
                 )} 
@@ -251,20 +263,20 @@ export default ({ forceMode, window }) => {
                 height={height}
             />
             <CommonLayer
-                value={highlighterValue} 
+                value={calcHighlighterValue(pos)} 
                 style={{ color: 'black', backgroundColor: 'transparent' }}
                 width={width}
                 height={height}
             />
             <CommonLayer
-                value={hotkeysValue} 
+                value={calcHotkeysValue(parsedButtons, HOTKEYS)} 
                 style={{ color: 'grey', backgroundColor: 'transparent' }}
                 width={width}
                 height={height}
             />
             <InputLayer
                 onKeyDown={handleKeyDown}
-                value={inputValue}
+                value={calcInputValue(pos)}
                 width={width}
                 height={height}
             /> 
