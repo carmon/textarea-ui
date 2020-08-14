@@ -4,7 +4,8 @@
   "description": "Boilerplate for react app.",
   "dependencies": {
     "react": "^16.13.1",
-    "react-dom": "^16.13.1"
+    "react-dom": "^16.13.1",
+    "storybook": "^6.0.6"
   },
   "devDependencies": {
     "@babel/core": "^7.10.5",
