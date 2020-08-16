@@ -10,13 +10,6 @@ const createButton = (begin, text) => ({
     text,
 });
 
-// const MainWindow = {
-//     text: 'Welcome to textarea-ui, a retro inspired text UI for your favourite browser.',
-//     title: 'textarea-ui',
-//     width: 100,
-//     height: 25,
-// };
-
 const textState = {
     default: 'Do you like hurting other people?',
     yes: 'Check out this game then.',

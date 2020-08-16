@@ -1,6 +1,7 @@
 import * as React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
+import useInterval from '../helpers/use-interval';
 import { InputProps } from './types';
 
 import './style.css';
@@ -20,12 +21,9 @@ export default ({
 
     // Color tilt
     const [color, setColor] = useState('white');
-    useEffect(() => {    
-        const timer = setTimeout(() => {
-            setColor(() => color === 'white' ? 'black' : 'white');
-        }, 450);
-        return () => clearTimeout(timer);
-      }, [ color ]);
+    useInterval(() => {
+        setColor(() => color === 'white' ? 'black' : 'white');
+    }, 450)
 
     return (
         <textarea 
