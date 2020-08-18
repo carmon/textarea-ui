@@ -1,21 +1,4 @@
-import { Button, Coord, Theme } from './types';
-
-// Default Theme
-export const THEME: Theme = {
-    BACKGROUND: '█',
-    DOUBLE_SINGLE: {
-        HOR: '═',
-        VER: '│',
-        TOP_LEFT: '╒',
-        TOP_RIGHT: '╕',
-        BOTTOM_LEFT: '╘',
-        BOTTOM_RIGHT: '╛'
-    },
-    FX: {
-        SHADOW: '▓',
-    },
-    USER: '_'
-};
+import { Button, Coord } from './types';
 
 export const NON_BREAKING = {
     HYPHEN: '\u2011',

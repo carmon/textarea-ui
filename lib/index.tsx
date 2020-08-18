@@ -4,53 +4,43 @@ import { useState } from 'react';
 import CommonLayer from './layer/common';
 import InputLayer from './layer/input';
 
-import { Box, Button, Mapper, Window, Coord } from './types';
-import { checkButtonFocus, getButtonPos, parseText, THEME, NON_BREAKING } from './util';
+import {
+    TEXT, THEME,
+    ACTION, PREV, NEXT,
+    DIR, LEFT, RIGHT, DOWN, UP
+} from './defaults';
+
+import { 
+    Box, 
+    Button, 
+    Mapper,
+    Coord, 
+    Size, 
+    Text,
+    StringValue 
+} from './types';
+import { checkButtonFocus, getButtonPos, parseText, NON_BREAKING } from './util';
 
 import './style.css';
 
-const screen = ({ width, height }: Window, func: Mapper<any>) => (...args:any[]) =>
+const screen = ({ width, height }: Size, func: Mapper<any>) => (...args:any[]) =>
     new Array(height).fill(0).map((_, y) => 
         new Array(width).fill(0).map((_,x) => 
             func({ x , y }, ...args)
         ).join('')
     ).join('');
 
-// ACTION
-const ACTION = [
-    13, // ENTER
-    32  // SPACEBAR
-]
-
-// FORCE MODE
-const NEXT = [ 
-    9, // TAB
-    39, // RIGHT
-];
-
-const PREV = [
-    37, // LEFT
-];
-
-// MOVEMENT
-const DIR = [
-    37, 65, // LEFT
-    38, 87, // UP
-    39, 68, // RIGHT
-    40, 83  // DOWN
-];
-const LEFT  = 0;
-const UP    = 1;
-const RIGHT = 2;
-const DOWN  = 3;
-
 interface PropTypes {
-    forceMode: boolean;
-    window: Window;
+    forced?: boolean;
+    buttons: Button[];
+    text: Text | string;
+    title: Text | string;
+    begin: Coord;
+    size: Size;
 }
 
-export default ({ forceMode, window }: PropTypes) => {
-    const { buttons, text, title, x, y, width, height } = window;
+export default ({ forced = false, buttons, text, title, begin, size }: PropTypes) => {
+    const { width, height } = size;
 
     const HOTKEYS = buttons.reduce((prev: string[], curr: Button) => {
         const key = curr.text
@@ -72,7 +62,7 @@ export default ({ forceMode, window }: PropTypes) => {
     const parsedButtons = buttons.map(b => ({ ...b, text: parseText(`[ ${b.text} ]`) })); 
     
     const [pos, setPos] = useState(
-        forceMode && parsedButtons.length 
+        forced && parsedButtons.length 
             ? getButtonPos(parsedButtons[0]) 
             : { x: 0, y: 0 }
         );
@@ -84,6 +74,7 @@ export default ({ forceMode, window }: PropTypes) => {
         if (checkButtonFocus(pos, curr)) return [ curr, prev[1] ];
         return [ prev[0] || null, prev[1] ? [ ...prev[1], curr ] : [curr]];
     }, [undefined, []]);
+    // TODO: check orderBy to resolve this ^^^
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         e.preventDefault();
@@ -97,7 +88,7 @@ export default ({ forceMode, window }: PropTypes) => {
             buttons.filter(b => b.hotkey === k)[0].action();
         }
 
-        if (forceMode) {
+        if (forced) {
             if (parsedButtons.length) {
                 if (PREV.includes(e.keyCode)) {
                     const bPositions = parsedButtons.map(b => getButtonPos(b));
@@ -132,6 +123,7 @@ export default ({ forceMode, window }: PropTypes) => {
                         break;
                 }
                 const target = { x: pos.x + dir.x, y: pos.y + dir.y };
+
                 if (target.x < 0)
                     target.x = width - 1;
                 else if (target.x === width)
@@ -147,7 +139,7 @@ export default ({ forceMode, window }: PropTypes) => {
         }        
     };
 
-    const calcLayerValue = screen(window, (tilePos: Coord, boxes: Box[], texts: Button[]) => {
+    const calcLayerValue = screen(size, (tilePos: Coord, boxes: Box[], texts: Button[]) => {
         let tile;
         if (boxes) {
             const t = boxes.reduce((prev, curr) => {
@@ -179,7 +171,7 @@ export default ({ forceMode, window }: PropTypes) => {
         }
 
         if (texts) {
-            const t = texts.reduce((prev, curr) => {
+            const t = texts.filter(t => !!t).reduce((prev, curr) => {
                 if (prev) return prev;
 
                 if (tilePos.y === curr.begin.y) {
@@ -195,10 +187,10 @@ export default ({ forceMode, window }: PropTypes) => {
         return tile || NON_BREAKING.SPACE;
     });
 
-    const calcHighlighterValue = screen(window, (tilePos, p) => 
+    const calcHighlighterValue = screen(size, (tilePos, p) => 
             tilePos.x === p.x && tilePos.y === p.y ? THEME.BACKGROUND : NON_BREAKING.SPACE);
 
-    const calcHotkeysValue = screen(window, (tilePos: Coord, texts: Button[], filter:string[]) => {
+    const calcHotkeysValue = screen(size, (tilePos: Coord, texts: Button[], filter:string[]) => {
         let tile;
         if (texts) {
             const t = texts.reduce((prev, curr) => {
@@ -217,17 +209,57 @@ export default ({ forceMode, window }: PropTypes) => {
         return tile || NON_BREAKING.SPACE;
     });
 
-    const calcInputValue = screen(window, (tilePos, p) => 
+    const calcInputValue = screen(size, (tilePos, p) => 
         tilePos.x === p.x && tilePos.y === p.y ? THEME.USER : NON_BREAKING.SPACE);
 
+    const { x, y } = begin;
+
+    const calcTitleValue = (value: Text | string): StringValue => {
+        const t = typeof(value) === 'string' ? { ...TEXT, value: parseText(value)} : value;
+        const m = typeof(t.margin) === 'number' ? { x: t.margin, y: t.margin } : t.margin;
+        return {
+            begin: {
+                x: t.align === 'left' 
+                    ? x + 1 + m.x 
+                    : t.align === 'center' 
+                        ? (width - t.value.length) / 2 
+                        : width - 1 - m.x - t.value.length,
+                y,
+            },
+            text: parseText(t.value)
+        };
+    };
+
+    const calcTextValue = (value: Text | string): StringValue[] => {
+        const t = typeof(value) === 'string' ? { ...TEXT, value: parseText(value)} : value;
+        const m = typeof(t.margin) === 'number' ? { x: t.margin, y: t.margin } : t.margin;
+
+        const len = t.value.length;
+        const maxLineLen = width - m.x * 2;
+        
+        return new Array(Math.ceil(len / maxLineLen)).fill(0).map((_, i) => {
+            console.log(t.value.substr(maxLineLen * i, maxLineLen));
+            return {
+                begin: {
+                    x: t.align === 'left' 
+                        ? x + m.x 
+                        : t.align === 'center' 
+                            ? (width - len) / 2 
+                            : width - m.x - len,
+                    y: y + i + m.y,
+                },
+                text: parseText(t.value.substr(maxLineLen * i, maxLineLen))
+            };
+        });
+    };
     return (
         <div className="container">
             <CommonLayer
                 value={calcLayerValue(
                     [{  top: y, left: x, right: x + width, bottom: y + height }], 
                     [
-                        title ? { begin: { x: 2, y: 0 }, text: parseText(title)} : {},
-                        text ? { begin: { x: 14, y: 2 }, text: parseText(text)} : {}
+                        title ? calcTitleValue(title) : null,
+                        ...calcTextValue(text)
                     ])} 
                 style={{ backgroundColor: '#00BFF0' }}
                 width={width}

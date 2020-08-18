@@ -1,4 +1,4 @@
-// Aestetics
+// Aesthetics
 export interface Theme {
     BACKGROUND: string;
     DOUBLE_SINGLE: {
@@ -16,16 +16,15 @@ export interface Theme {
 }
 
 // Components
-export interface Window {
-    width: number;
-    height: number;
-    x: number;
-    y: number;
-    buttons: Button[];
-    text: string;
-    title:string;
+type Aligment = 'left' | 'center' | 'right';
+type Margin = number | Coord;
+export interface Text {
+    align: Aligment;
+    margin: Margin;
+    value: string;
 }
 
+// Primitives
 export interface Box {
     top: number;
     left: number;
@@ -33,6 +32,13 @@ export interface Box {
     right: number;
 }
 
+export interface StringValue {
+    begin: Coord;
+    background?: boolean;
+    text: string;
+}
+
+// Components (older)
 export interface Button {
     action: () => void;
     background?: boolean; // This is calculated
@@ -44,7 +50,13 @@ export interface Button {
 // Core
 export type Mapper<T> = (c: Coord, ...r:T[]) => string;
 
+// Geom
 export interface Coord {
     x: number;
     y: number;
+}
+
+export interface Size {
+    width: number;
+    height: number;
 }
