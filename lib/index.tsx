@@ -61,13 +61,14 @@ export default ({ forced = false, buttons, text, title, begin, size }: PropTypes
     // Someone's got to do it
     const parsedButtons = buttons.map(b => ({ ...b, text: parseText(`[ ${b.text} ]`) })); 
     
-    const [pos, setPos] = useState(
-        forced && parsedButtons.length 
-            ? getButtonPos(parsedButtons[0]) 
-            : { x: 0, y: 0 }
-        );
-    
     const [i, setI] = useState(0);
+
+    const initialPos = forced && parsedButtons.length ? getButtonPos(parsedButtons[i] || parsedButtons[0]) : { x: 0, y: 0 };
+    const [pos, setPos] = useState(initialPos);
+    // Fixes buttons changing
+    if (pos.x !== initialPos.x || pos.y !== initialPos.y)
+        setPos(initialPos);
+    
     
     // Always only one is marked selected
     const [selected, ...rest] = parsedButtons.sort((a, b) => 
@@ -233,24 +234,20 @@ export default ({ forced = false, buttons, text, title, begin, size }: PropTypes
 
         const len = t.value.length;
         const maxLineLen = width - m.x * 2;
-        // TODO: text wrapping
-        // const lines = new Array(Math.ceil(len / maxLineLen)).fill(0).map((_, i) => {
-        //     let l = t.value.substr(maxLineLen * i, maxLineLen);
-        //     l.lastIndexOf(l)
-        // });
+        const res = t.value.split('\n');
         
-        return new Array(Math.ceil(len / maxLineLen)).fill(0).map((_, i) => {
+        return res.map((text, i) => {
             console.log(t.value.substr(maxLineLen * i, maxLineLen));
             return {
                 begin: {
                     x: t.align === 'left' 
                         ? x + m.x 
                         : t.align === 'center' 
-                            ? (width - Math.min(len, maxLineLen)) / 2 
+                            ? (width - text.length) / 2 
                             : width - m.x - len,
                     y: y + i + m.y,
                 },
-                text: parseText(t.value.substr(maxLineLen * i, maxLineLen))
+                text: parseText(text).trim()
             };
         });
     };

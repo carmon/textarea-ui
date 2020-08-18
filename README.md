@@ -23,10 +23,12 @@ arrow left and right or TAB to move.
 - Cross-browser sizing (at zoom 100%)
 - [Vercel deployment](https://textarea-ui-git-master.carmon.vercel.app/) (could be down)
 - Added TS, prettier and eslint
+- Added align feature for StringValues
 
 ## Basic Types so far
+- Boxes
+- StringValues
 - Texts
-- Boxes (combined with texts gives windows)
 - Button (texts with background and functionality)
 - User position and control
 
