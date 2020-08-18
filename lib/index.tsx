@@ -70,12 +70,9 @@ export default ({ forced = false, buttons, text, title, begin, size }: PropTypes
     const [i, setI] = useState(0);
     
     // Always only one is marked selected
-    const [selected, rest] = parsedButtons.reduce((prev: any, curr) => {
-        if (checkButtonFocus(pos, curr)) return [ curr, prev[1] ];
-        return [ prev[0] || null, prev[1] ? [ ...prev[1], curr ] : [curr]];
-    }, [undefined, []]);
-    // TODO: check orderBy to resolve this ^^^
-
+    const [selected, ...rest] = parsedButtons.sort((a, b) => 
+        checkButtonFocus(pos, a) ? -1 : checkButtonFocus(pos, b) ? 1 : 0);
+    
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         e.preventDefault();
 
@@ -236,6 +233,11 @@ export default ({ forced = false, buttons, text, title, begin, size }: PropTypes
 
         const len = t.value.length;
         const maxLineLen = width - m.x * 2;
+        // TODO: text wrapping
+        // const lines = new Array(Math.ceil(len / maxLineLen)).fill(0).map((_, i) => {
+        //     let l = t.value.substr(maxLineLen * i, maxLineLen);
+        //     l.lastIndexOf(l)
+        // });
         
         return new Array(Math.ceil(len / maxLineLen)).fill(0).map((_, i) => {
             console.log(t.value.substr(maxLineLen * i, maxLineLen));
@@ -244,7 +246,7 @@ export default ({ forced = false, buttons, text, title, begin, size }: PropTypes
                     x: t.align === 'left' 
                         ? x + m.x 
                         : t.align === 'center' 
-                            ? (width - len) / 2 
+                            ? (width - Math.min(len, maxLineLen)) / 2 
                             : width - m.x - len,
                     y: y + i + m.y,
                 },
@@ -261,7 +263,7 @@ export default ({ forced = false, buttons, text, title, begin, size }: PropTypes
                         title ? calcTitleValue(title) : null,
                         ...calcTextValue(text)
                     ])} 
-                style={{ backgroundColor: '#00BFF0' }}
+                style={{ backgroundColor: '#00BFF0', color: 'black' }}
                 width={width}
                 height={height}
             />

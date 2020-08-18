@@ -4,11 +4,11 @@ import ReactDOM from "react-dom";
 import UI from "./lib/index.tsx";
 
 // Flagged for migration to TS story
-// Will resume example when text aligment feature is done 
+// Will resume example when text wrapping feature is done 
 const HotlineMaiame = () => {
     const [text, setText] = useState('Do you like hurting other people?');
 
-    const HotLineMiami = {
+    const props = {
         buttons: [
             {
                 action: () => {
@@ -26,15 +26,24 @@ const HotlineMaiame = () => {
                 text: 'No'  
             }
         ],
-        text,
+        text: {
+            align: 'center',
+            margin: { x: 1, y: 2 },
+            value: text
+        },
         title: 'Hotline  Maiamee',
-        x: 0,
-        y: 0, 
-        width: 60,
-        height: 8 
+        begin: {
+            x: 0,
+            y: 0 
+        },
+        size: {
+            width: 60,
+            height: 8 
+        },
+        forced: true
     };
 
-    return <UI window={HotLineMiami} forceMode />;
+    return <UI { ...props } />;
 };
 
 
