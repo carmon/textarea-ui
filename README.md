@@ -1,6 +1,10 @@
 # textarea-ui
 A little retro inspired text-ui for web browsers.
 
+```
+Disclaimer: this project is still in development, data structures will change in the future, if you want to use it as is, fork it. 
+```
+
 ## Instructions
     - npm i
     - npm run start
@@ -21,7 +25,7 @@ arrow left and right or TAB to move.
 ## What's done?
 - POC in reactjs
 - Cross-browser sizing (at zoom 100%)
-- [Vercel deployment](https://textarea-ui-git-master.carmon.vercel.app/) (could be down)
+- [Vercel deployment](https://textarea-ui-git-master.carmon.vercel.app/)
 - Added TS, prettier and eslint
 - Added align feature for StringValues
 
