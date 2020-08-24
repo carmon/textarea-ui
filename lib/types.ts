@@ -23,6 +23,11 @@ export interface Text {
     margin: Margin;
     value: string;
 }
+export interface Window {
+    bounds: Box;
+    title: Text;
+    text: Text;
+}
 
 // Primitives
 export interface Box {
@@ -39,6 +44,7 @@ export interface StringValue {
 }
 
 // Components (older)
+
 export interface Button {
     action: () => void;
     background?: boolean; // This is calculated

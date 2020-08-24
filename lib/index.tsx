@@ -5,7 +5,8 @@ import CommonLayer from './layer/common';
 import InputLayer from './layer/input';
 
 import {
-    TEXT, THEME,
+    // TEXT, 
+    THEME,
     ACTION, PREV, NEXT,
     DIR, LEFT, RIGHT, DOWN, UP
 } from './defaults';
@@ -16,8 +17,9 @@ import {
     Mapper,
     Coord, 
     Size, 
-    Text,
-    StringValue 
+    // Text,
+    // StringValue,
+    Window
 } from './types';
 import { checkButtonFocus, getButtonPos, parseText, NON_BREAKING } from './util';
 
@@ -33,13 +35,12 @@ const screen = ({ width, height }: Size, func: Mapper<any>) => (...args:any[]) =
 interface PropTypes {
     forced?: boolean;
     buttons: Button[];
-    text: Text | string;
-    title: Text | string;
-    begin: Coord;
     size: Size;
+    windows: Window[];
 }
 
-export default ({ forced = false, buttons, text, title, begin, size }: PropTypes) => {
+export default ({ forced = false, buttons, size, windows }: PropTypes) => {
+    const { bounds } = windows[0];
     const { width, height } = size;
 
     const HOTKEYS = buttons.reduce((prev: string[], curr: Button) => {
@@ -66,11 +67,10 @@ export default ({ forced = false, buttons, text, title, begin, size }: PropTypes
     const initialPos = forced && parsedButtons.length ? getButtonPos(parsedButtons[i] || parsedButtons[0]) : { x: 0, y: 0 };
     const [pos, setPos] = useState(initialPos);
     // Fixes buttons changing
-    if (pos.x !== initialPos.x || pos.y !== initialPos.y)
-        setPos(initialPos);
+    // if (forced && pos.x !== initialPos.x || pos.y !== initialPos.y)
+    //     setPos(initialPos);
     
-    
-    // Always only one is marked selected
+    // Only one is marked selected
     const [selected, ...rest] = parsedButtons.sort((a, b) => 
         checkButtonFocus(pos, a) ? -1 : checkButtonFocus(pos, b) ? 1 : 0);
     
@@ -136,6 +136,38 @@ export default ({ forced = false, buttons, text, title, begin, size }: PropTypes
             }
         }        
     };
+
+    const calcForegroundValue = screen(size, () => NON_BREAKING.SPACE);
+
+    const calcWindowValue = screen(
+        { width: bounds.right - bounds.left, height: bounds.bottom - bounds.top }, 
+        (tilePos, { bounds: b, text, title }: Window) => {
+            const w = b.right - b.left;
+            const h = b.bottom - b.top;
+            console.log(text, title);
+            if (tilePos.y === 0) {
+                if (tilePos.x === 0)
+                    return THEME.DOUBLE_SINGLE.TOP_LEFT;
+                if (tilePos.x === w - 1)
+                    return THEME.DOUBLE_SINGLE.TOP_RIGHT;
+                if (tilePos.x > 0 && tilePos.x < w - 1)
+                    return THEME.DOUBLE_SINGLE.HOR;
+            }
+
+            if (tilePos.y === h - 1) {
+                if (tilePos.x === 0)
+                    return THEME.DOUBLE_SINGLE.BOTTOM_LEFT;
+                if (tilePos.x === w - 1)
+                    return THEME.DOUBLE_SINGLE.BOTTOM_RIGHT;
+                if (tilePos.x > 0 && tilePos.x < w - 1)
+                    return THEME.DOUBLE_SINGLE.HOR;
+            } 
+            if ((tilePos.x === 0 || tilePos.x === w - 1) && tilePos.y > 0 && tilePos.y < h)
+                return THEME.DOUBLE_SINGLE.VER;
+
+            return NON_BREAKING.SPACE;
+        }
+    );
 
     const calcLayerValue = screen(size, (tilePos: Coord, boxes: Box[], texts: Button[]) => {
         let tile;
@@ -210,59 +242,64 @@ export default ({ forced = false, buttons, text, title, begin, size }: PropTypes
     const calcInputValue = screen(size, (tilePos, p) => 
         tilePos.x === p.x && tilePos.y === p.y ? THEME.USER : NON_BREAKING.SPACE);
 
-    const { x, y } = begin;
+    // const { top, left, right, bottom } = bounds; 
+    // const calcTitleValue = (value: Text | string): StringValue => {
+    //     const t = typeof(value) === 'string' ? { ...TEXT, value: parseText(value)} : value;
+    //     const m = typeof(t.margin) === 'number' ? { x: t.margin, y: t.margin } : t.margin;
+    //     return {
+    //         begin: {
+    //             x: t.align === 'left' 
+    //                 ? left + 1 + m.x 
+    //                 : t.align === 'center' 
+    //                     ? (right - t.value.length) / 2 
+    //                     : right - 1 - m.x - t.value.length,
+    //             y: top,
+    //         },
+    //         text: parseText(t.value)
+    //     };
+    // };
 
-    const calcTitleValue = (value: Text | string): StringValue => {
-        const t = typeof(value) === 'string' ? { ...TEXT, value: parseText(value)} : value;
-        const m = typeof(t.margin) === 'number' ? { x: t.margin, y: t.margin } : t.margin;
-        return {
-            begin: {
-                x: t.align === 'left' 
-                    ? x + 1 + m.x 
-                    : t.align === 'center' 
-                        ? (width - t.value.length) / 2 
-                        : width - 1 - m.x - t.value.length,
-                y,
-            },
-            text: parseText(t.value)
-        };
-    };
+    // const calcTextValue = (value: Text | string): StringValue[] => {
+    //     const t = typeof(value) === 'string' ? { ...TEXT, value: parseText(value)} : value;
+    //     const m = typeof(t.margin) === 'number' ? { x: t.margin, y: t.margin } : t.margin;
 
-    const calcTextValue = (value: Text | string): StringValue[] => {
-        const t = typeof(value) === 'string' ? { ...TEXT, value: parseText(value)} : value;
-        const m = typeof(t.margin) === 'number' ? { x: t.margin, y: t.margin } : t.margin;
-
-        const len = t.value.length;
-        const maxLineLen = width - m.x * 2;
-        const res = t.value.split('\n');
+    //     const len = t.value.length;
+    //     const maxLineLen = right - m.x * 2;
+    //     const res = t.value.split('\n');
         
-        return res.map((text, i) => {
-            console.log(t.value.substr(maxLineLen * i, maxLineLen));
-            return {
-                begin: {
-                    x: t.align === 'left' 
-                        ? x + m.x 
-                        : t.align === 'center' 
-                            ? (width - text.length) / 2 
-                            : width - m.x - len,
-                    y: y + i + m.y,
-                },
-                text: parseText(text).trim()
-            };
-        });
-    };
+    //     return res.map((text, i) => {
+    //         console.log(t.value.substr(maxLineLen * i, maxLineLen));
+    //         return {
+    //             begin: {
+    //                 x: t.align === 'left' 
+    //                     ? left + m.x 
+    //                     : t.align === 'center' 
+    //                         ? left + ((right - left) - text.length) / 2
+    //                         : right - m.x - len,
+    //                 y: top + i + m.y,
+    //             },
+    //             text: parseText(text).trim()
+    //         };
+    //     });
+    // };
     return (
         <div className="container">
             <CommonLayer
-                value={calcLayerValue(
-                    [{  top: y, left: x, right: x + width, bottom: y + height }], 
-                    [
-                        title ? calcTitleValue(title) : null,
-                        ...calcTextValue(text)
-                    ])} 
-                style={{ backgroundColor: '#00BFF0', color: 'black' }}
+                value={calcForegroundValue()} 
+                style={{ backgroundColor: '#0000AA', color: 'black' }}
                 width={width}
                 height={height}
+            />
+            <CommonLayer
+                value={calcWindowValue(windows[0])} 
+                style={{ 
+                    backgroundColor: 'gray', 
+                    color: 'white', 
+                    top: `${windows[0].bounds.top}em`,
+                    left: `${windows[0].bounds.left * .6125}em`,
+                }}
+                width={windows[0].bounds.right - windows[0].bounds.left}
+                height={windows[0].bounds.bottom - windows[0].bounds.top}
             />
             <CommonLayer
                 value={calcLayerValue(
