@@ -74,7 +74,7 @@ export default ({ forced = false, buttons, size, windows }: PropTypes) => {
     const [selected, ...rest] = parsedButtons.sort((a, b) => 
         checkButtonFocus(pos, a) ? -1 : checkButtonFocus(pos, b) ? 1 : 0);
     
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    const handleKeyEvent = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         e.preventDefault();
 
         if (ACTION.includes(e.keyCode) && selected) {
@@ -343,7 +343,7 @@ export default ({ forced = false, buttons, size, windows }: PropTypes) => {
                 height={height}
             />
             <InputLayer
-                onKeyDown={handleKeyDown}
+                onKeyUp={handleKeyEvent}
                 value={calcInputValue(pos)}
                 width={width}
                 height={height}

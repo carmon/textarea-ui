@@ -7,7 +7,8 @@ import { InputProps } from './types';
 import './style.css';
 
 export default ({ 
-    onKeyDown, 
+    onKeyDown,
+    onKeyUp,
     value, 
     width, 
     height 
@@ -35,6 +36,7 @@ export default ({
             style={{ color, backgroundColor: 'transparent' }}
             onBlur={handleBlur}
             onKeyDown={onKeyDown}
+            onKeyUp={onKeyUp}
             ref={inputRef}
             // This is just to ignore a react error
             readOnly
