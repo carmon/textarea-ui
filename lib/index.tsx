@@ -4,6 +4,10 @@ import { Fragment, useState } from 'react';
 import CommonLayer from './layer/common';
 import InputLayer from './layer/input';
 
+const isChrome = navigator.userAgent.indexOf("Chrome") != -1;
+const notWindows = navigator.appVersion.indexOf("Win") == -1;
+const correctOffset = (width: number) => notWindows && isChrome ? width + 1 : width;
+
 import {
     TEXT, 
     THEME,
@@ -318,13 +322,13 @@ export default ({ forced = false, highlight = false, buttons, size, windows }: P
 
     const calcInputValue = screen(size, (tilePos, p) => 
         tilePos.x === p.x && tilePos.y === p.y ? THEME.USER : NON_BREAKING.SPACE);
-
+    
     return (
         <Fragment>
             <CommonLayer
                 value={calcForegroundValue()} 
                 style={{ backgroundColor: '#0000AA', color: 'cyan' }}
-                width={width}
+                width={correctOffset(width)}
                 height={height}
             />
             <CommonLayer
@@ -335,7 +339,7 @@ export default ({ forced = false, highlight = false, buttons, size, windows }: P
                     top: `${windows[0].bounds.top}em`,
                     left: `${windows[0].bounds.left * .6125}em`,
                 }}
-                width={windows[0].bounds.right - windows[0].bounds.left}
+                width={correctOffset(windows[0].bounds.right - windows[0].bounds.left)}
                 height={windows[0].bounds.bottom - windows[0].bounds.top}
             />
             {rest.length > 0 && 
@@ -345,7 +349,7 @@ export default ({ forced = false, highlight = false, buttons, size, windows }: P
                         rest.map((b: Button) => ({ ...b, background: true }))
                     )} 
                     style={{ color: 'red', backgroundColor: 'transparent' }}
-                    width={width}
+                    width={correctOffset(width)}
                     height={height}
                 />}
             {selected &&
@@ -355,7 +359,7 @@ export default ({ forced = false, highlight = false, buttons, size, windows }: P
                         [{ ...selected, background: true }]
                     )} 
                     style={{ color: 'green', backgroundColor: 'transparent' }}
-                    width={width}
+                    width={correctOffset(width)}
                     height={height}
                 />}
             {parsedButtons.length > 0 && 
@@ -365,27 +369,27 @@ export default ({ forced = false, highlight = false, buttons, size, windows }: P
                         parsedButtons
                     )} 
                     style={{ color: 'white', backgroundColor: 'transparent' }}
-                    width={width}
+                    width={correctOffset(width)}
                     height={height}
                 />}
             {highlight && 
                 <CommonLayer
                     value={calcHighlighterValue(pos)} 
                     style={{ color: 'black', backgroundColor: 'transparent' }}
-                    width={width}
+                    width={correctOffset(width)}
                     height={height}
                 />}
             {parsedButtons.length > 0 &&
                 <CommonLayer
                     value={calcHotkeysValue(parsedButtons, HOTKEYS)} 
                     style={{ color: 'grey', backgroundColor: 'transparent' }}
-                    width={width}
+                    width={correctOffset(width)}
                     height={height}
                 />}
             <InputLayer
                 onKeyUp={handleKeyEvent}
                 value={calcInputValue(pos)}
-                width={width}
+                width={correctOffset(width)}
                 height={height}
             /> 
         </Fragment>

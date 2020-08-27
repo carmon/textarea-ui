@@ -42,3 +42,4 @@ arrow left and right or TAB to move.
 - Zoom on other browsers than Firefox break textareas lines, thus glitching app
 - No cellphone browser support at the moment
 - Can't put exclamation mark (!) without a letter after in titles, breaks the line
+- Offset to col attribute (+1) must be put in Chrome in Linux/macOS
