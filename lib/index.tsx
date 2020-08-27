@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 
 import CommonLayer from './layer/common';
 import InputLayer from './layer/input';
 
 import {
-    // TEXT, 
+    TEXT, 
     THEME,
     ACTION, PREV, NEXT,
     DIR, LEFT, RIGHT, DOWN, UP
@@ -17,13 +17,11 @@ import {
     Mapper,
     Coord, 
     Size, 
-    // Text,
-    // StringValue,
+    Text,
+    StringValue,
     Window
 } from './types';
 import { checkButtonFocus, getButtonPos, parseText, NON_BREAKING } from './util';
-
-import './style.css';
 
 const screen = ({ width, height }: Size, func: Mapper<any>) => (...args:any[]) =>
     new Array(height).fill(0).map((_, y) => 
@@ -33,13 +31,14 @@ const screen = ({ width, height }: Size, func: Mapper<any>) => (...args:any[]) =
     ).join('');
 
 interface PropTypes {
-    forced?: boolean;
     buttons: Button[];
+    forced?: boolean;
+    highlight?: boolean;
     size: Size;
     windows: Window[];
 }
 
-export default ({ forced = false, buttons, size, windows }: PropTypes) => {
+export default ({ forced = false, highlight = false, buttons, size, windows }: PropTypes) => {
     const { bounds } = windows[0];
     const { width, height } = size;
 
@@ -137,14 +136,74 @@ export default ({ forced = false, buttons, size, windows }: PropTypes) => {
         }        
     };
 
-    const calcForegroundValue = screen(size, () => NON_BREAKING.SPACE);
+    const calcForegroundValue = screen(size, (tilePos) => {
+        if (tilePos.y === 0) 
+            return (tilePos.x % 10).toString();
+        
+        if (tilePos.x === 0)
+            return (tilePos.y % 10).toString();
+
+        return NON_BREAKING.SPACE;
+    });
+
+    const calcTitleValue = (b: Box) => (value: Text | string): StringValue => {
+        const t = typeof(value) === 'string' ? { ...TEXT, value: parseText(value)} : value;
+        const m = typeof(t.margin) === 'number' ? { x: t.margin, y: t.margin } : t.margin;
+        return {
+            begin: {
+                x: t.align === 'left' 
+                    ? m.x
+                    : t.align === 'center' 
+                        ? (b.right - b.left - t.value.length) / 2 
+                        : b.right - b.left - m.x - t.value.length,
+                y: 0,
+            },
+            text: parseText(t.value)
+        };
+    };
+            
+    const calcTextValue = (b: Box) => (value: Text | string): StringValue[] => {
+        const t = typeof(value) === 'string' ? { ...TEXT, value: parseText(value)} : value;
+        const m = typeof(t.margin) === 'number' ? { x: t.margin, y: t.margin } : t.margin;
+
+        const len = t.value.length;
+        const maxLineLen = b.right - m.x * 2;
+        const res = t.value.split('\n');
+        
+        return res.map((text, i) => {
+            console.log(t.value.substr(maxLineLen * i, maxLineLen));
+            return {
+                begin: {
+                    x: t.align === 'left' 
+                        ? m.x 
+                        : t.align === 'center' 
+                            ? ((b.right - b.left) - text.length) / 2
+                            : b.right - b.left - m.x - len,
+                    y: i + m.y,
+                },
+                text: parseText(text).trim()
+            };
+        });
+    };
 
     const calcWindowValue = screen(
         { width: bounds.right - bounds.left, height: bounds.bottom - bounds.top }, 
         (tilePos, { bounds: b, text, title }: Window) => {
             const w = b.right - b.left;
             const h = b.bottom - b.top;
-            console.log(text, title);
+            
+            
+            const calcTitle = calcTitleValue(b);
+            const tit = calcTitle(title);
+            console.log(tit);
+
+            //console.log(tilePos.y, tit.begin.y);
+            if (tilePos.y === tit.begin.y) {
+                if (tilePos.x >= tit.begin.x && tilePos.x < tit.begin.x + tit.text.length) {
+                    return tit.background ? THEME.BACKGROUND : tit.text.charAt(tilePos.x - tit.begin.x);
+                }
+            }
+
             if (tilePos.y === 0) {
                 if (tilePos.x === 0)
                     return THEME.DOUBLE_SINGLE.TOP_LEFT;
@@ -164,6 +223,24 @@ export default ({ forced = false, buttons, size, windows }: PropTypes) => {
             } 
             if ((tilePos.x === 0 || tilePos.x === w - 1) && tilePos.y > 0 && tilePos.y < h)
                 return THEME.DOUBLE_SINGLE.VER;
+                
+
+            const calcText = calcTextValue(b);
+            const texts = calcText(text);
+
+            if (texts) {
+                const t = texts.filter(t => !!t).reduce((prev, curr) => {
+                    if (prev) return prev;
+    
+                    if (tilePos.y === curr.begin.y) {
+                        if (tilePos.x >= curr.begin.x && tilePos.x < curr.begin.x + curr.text.length) {
+                            return curr.background ? THEME.BACKGROUND : curr.text.charAt(tilePos.x - curr.begin.x);
+                        }
+                    }
+                    return '';
+                }, '');
+                if (t) return t;
+            }
 
             return NON_BREAKING.SPACE;
         }
@@ -242,51 +319,11 @@ export default ({ forced = false, buttons, size, windows }: PropTypes) => {
     const calcInputValue = screen(size, (tilePos, p) => 
         tilePos.x === p.x && tilePos.y === p.y ? THEME.USER : NON_BREAKING.SPACE);
 
-    // const { top, left, right, bottom } = bounds; 
-    // const calcTitleValue = (value: Text | string): StringValue => {
-    //     const t = typeof(value) === 'string' ? { ...TEXT, value: parseText(value)} : value;
-    //     const m = typeof(t.margin) === 'number' ? { x: t.margin, y: t.margin } : t.margin;
-    //     return {
-    //         begin: {
-    //             x: t.align === 'left' 
-    //                 ? left + 1 + m.x 
-    //                 : t.align === 'center' 
-    //                     ? (right - t.value.length) / 2 
-    //                     : right - 1 - m.x - t.value.length,
-    //             y: top,
-    //         },
-    //         text: parseText(t.value)
-    //     };
-    // };
-
-    // const calcTextValue = (value: Text | string): StringValue[] => {
-    //     const t = typeof(value) === 'string' ? { ...TEXT, value: parseText(value)} : value;
-    //     const m = typeof(t.margin) === 'number' ? { x: t.margin, y: t.margin } : t.margin;
-
-    //     const len = t.value.length;
-    //     const maxLineLen = right - m.x * 2;
-    //     const res = t.value.split('\n');
-        
-    //     return res.map((text, i) => {
-    //         console.log(t.value.substr(maxLineLen * i, maxLineLen));
-    //         return {
-    //             begin: {
-    //                 x: t.align === 'left' 
-    //                     ? left + m.x 
-    //                     : t.align === 'center' 
-    //                         ? left + ((right - left) - text.length) / 2
-    //                         : right - m.x - len,
-    //                 y: top + i + m.y,
-    //             },
-    //             text: parseText(text).trim()
-    //         };
-    //     });
-    // };
     return (
-        <div className="container">
+        <Fragment>
             <CommonLayer
                 value={calcForegroundValue()} 
-                style={{ backgroundColor: '#0000AA', color: 'black' }}
+                style={{ backgroundColor: '#0000AA', color: 'cyan' }}
                 width={width}
                 height={height}
             />
@@ -301,15 +338,16 @@ export default ({ forced = false, buttons, size, windows }: PropTypes) => {
                 width={windows[0].bounds.right - windows[0].bounds.left}
                 height={windows[0].bounds.bottom - windows[0].bounds.top}
             />
-            <CommonLayer
-                value={calcLayerValue(
-                    null,
-                    rest.map((b: Button) => ({ ...b, background: true }))
-                )} 
-                style={{ color: 'red', backgroundColor: 'transparent' }}
-                width={width}
-                height={height}
-            />
+            {rest.length > 0 && 
+                <CommonLayer
+                    value={calcLayerValue(
+                        null,
+                        rest.map((b: Button) => ({ ...b, background: true }))
+                    )} 
+                    style={{ color: 'red', backgroundColor: 'transparent' }}
+                    width={width}
+                    height={height}
+                />}
             {selected &&
                 <CommonLayer
                     value={calcLayerValue(
@@ -319,35 +357,37 @@ export default ({ forced = false, buttons, size, windows }: PropTypes) => {
                     style={{ color: 'green', backgroundColor: 'transparent' }}
                     width={width}
                     height={height}
-                />
-            }
-            <CommonLayer
-                value={calcLayerValue(
-                    null,
-                    parsedButtons
-                )} 
-                style={{ color: 'white', backgroundColor: 'transparent' }}
-                width={width}
-                height={height}
-            />
-            <CommonLayer
-                value={calcHighlighterValue(pos)} 
-                style={{ color: 'black', backgroundColor: 'transparent' }}
-                width={width}
-                height={height}
-            />
-            <CommonLayer
-                value={calcHotkeysValue(parsedButtons, HOTKEYS)} 
-                style={{ color: 'grey', backgroundColor: 'transparent' }}
-                width={width}
-                height={height}
-            />
+                />}
+            {parsedButtons.length > 0 && 
+                <CommonLayer
+                    value={calcLayerValue(
+                        null,
+                        parsedButtons
+                    )} 
+                    style={{ color: 'white', backgroundColor: 'transparent' }}
+                    width={width}
+                    height={height}
+                />}
+            {highlight && 
+                <CommonLayer
+                    value={calcHighlighterValue(pos)} 
+                    style={{ color: 'black', backgroundColor: 'transparent' }}
+                    width={width}
+                    height={height}
+                />}
+            {parsedButtons.length > 0 &&
+                <CommonLayer
+                    value={calcHotkeysValue(parsedButtons, HOTKEYS)} 
+                    style={{ color: 'grey', backgroundColor: 'transparent' }}
+                    width={width}
+                    height={height}
+                />}
             <InputLayer
                 onKeyUp={handleKeyEvent}
                 value={calcInputValue(pos)}
                 width={width}
                 height={height}
             /> 
-        </div>
+        </Fragment>
     );
 };

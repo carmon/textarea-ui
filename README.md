@@ -28,6 +28,7 @@ arrow left and right or TAB to move.
 - [Vercel deployment](https://textarea-ui-git-master.carmon.vercel.app/)
 - Added TS, prettier and eslint
 - Added align feature for StringValues
+- Grid mode in foreground layer
 
 ## Basic Types so far
 - Boxes
@@ -35,7 +36,9 @@ arrow left and right or TAB to move.
 - Texts
 - Button (texts with background and functionality)
 - User position and control
+- Windows (Buttons & Texts will be a component of window)
 
 ## Known issues
 - Zoom on other browsers than Firefox break textareas lines, thus glitching app
 - No cellphone browser support at the moment
+- Can't put exclamation mark (!) without a letter after in titles, breaks the line

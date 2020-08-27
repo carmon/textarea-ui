@@ -3,6 +3,8 @@ import ReactDOM from "react-dom";
 
 import Screen from "./lib/index.tsx";
 
+import './style.css';
+
 const HotlineMaiame = () => {
     const props = {
         buttons: [],
@@ -19,7 +21,11 @@ const HotlineMaiame = () => {
                     margin: { x: 1, y: 2 },
                     value: "I'm right in the center dude!"
                 },
-                title: 'Screen test',
+                title: {
+                    align: 'center',
+                    margin: { x: 0 },
+                    value: "[Scene test]"
+                },
             }
         ],
         size: {

@@ -1,11 +1,9 @@
-/* This should not go here */
 body {
     --webkit-transform: scale(1);
     --ms-transform: scale(1);
     transform: scale(1);
 }
 
-.container {
+#root {
     display: flex;
-    /* justify-content: center; */
 }
