@@ -17,36 +17,30 @@ import {
 
 import { 
     Box, 
-    Button, 
+    Button,
     Mapper,
-    Coord, 
-    Size, 
+    Size,
     Text,
     StringValue,
-    Window
+    Window,
+    WindowValue
 } from './types';
-import { checkButtonFocus, getButtonPos, parseText, NON_BREAKING } from './util';
-
-const screen = ({ width, height }: Size, func: Mapper<any>) => (...args:any[]) =>
-    new Array(height).fill(0).map((_, y) => 
-        new Array(width).fill(0).map((_,x) => 
-            func({ x , y }, ...args)
-        ).join('')
-    ).join('');
+import { checkButtonFocus, getButtonPos, parseText, screen, NON_BREAKING } from './util';
 
 interface PropTypes {
-    buttons: Button[];
+    buttons?: Button[];
     forced?: boolean;
     highlight?: boolean;
     size: Size;
     windows: Window[];
 }
 
-export default ({ forced = false, highlight = false, buttons, size, windows }: PropTypes) => {
-    const { bounds } = windows[0];
-    const { width, height } = size;
+export default ({ forced = false, highlight = false, buttons, size, windows }: PropTypes) => 
+{
+    // Begin buttons (put inside Window Calc)
+    // All the buttons accumulator
 
-    const HOTKEYS = buttons.reduce((prev: string[], curr: Button) => {
+    const HOTKEYS = !buttons ? [] : buttons.reduce((prev: string[], curr: Button) => {
         const key = curr.text
             .split('')
             .reduce(
@@ -63,8 +57,9 @@ export default ({ forced = false, highlight = false, buttons, size, windows }: P
     }, []);
 
     // Someone's got to do it
-    const parsedButtons = buttons.map(b => ({ ...b, text: parseText(`[ ${b.text} ]`) })); 
-    
+    const parsedButtons = !buttons ? [] :buttons.map(b => ({ ...b, text: parseText(`[ ${b.text} ]`) })); 
+    // Begin buttons (put inside Window Calc)
+
     const [i, setI] = useState(0);
 
     const initialPos = forced && parsedButtons.length ? getButtonPos(parsedButtons[i] || parsedButtons[0]) : { x: 0, y: 0 };
@@ -85,7 +80,7 @@ export default ({ forced = false, highlight = false, buttons, size, windows }: P
         }
 
         const k = e.key.toLowerCase();
-        if (HOTKEYS.includes(k)) {
+        if (HOTKEYS.includes(k) && buttons) {
             buttons.filter(b => b.hotkey === k)[0].action();
         }
 
@@ -126,13 +121,13 @@ export default ({ forced = false, highlight = false, buttons, size, windows }: P
                 const target = { x: pos.x + dir.x, y: pos.y + dir.y };
 
                 if (target.x < 0)
-                    target.x = width - 1;
-                else if (target.x === width)
+                    target.x = size.width - 1;
+                else if (target.x === size.width)
                     target.x = 0;
     
                 if (target.y < 0)
-                    target.y = height - 1;
-                else if (target.y === height)
+                    target.y = size.height - 1;
+                else if (target.y === size.height)
                     target.y = 0;
     
                 setPos(target);
@@ -167,7 +162,7 @@ export default ({ forced = false, highlight = false, buttons, size, windows }: P
     };
             
     const calcTextValue = (b: Box) => (value: Text | string): StringValue[] => {
-        const t = typeof(value) === 'string' ? { ...TEXT, value: parseText(value)} : value;
+        const t = typeof(value) === 'string' ? { ...TEXT, value } : value;
         const m = typeof(t.margin) === 'number' ? { x: t.margin, y: t.margin } : t.margin;
 
         const len = t.value.length;
@@ -175,7 +170,7 @@ export default ({ forced = false, highlight = false, buttons, size, windows }: P
         const res = t.value.split('\n');
         
         return res.map((text, i) => {
-            console.log(t.value.substr(maxLineLen * i, maxLineLen));
+            console.log(maxLineLen, t.value.substr(maxLineLen * i, maxLineLen));
             return {
                 begin: {
                     x: t.align === 'left' 
@@ -190,67 +185,59 @@ export default ({ forced = false, highlight = false, buttons, size, windows }: P
         });
     };
 
-    const calcWindowValue = screen(
-        { width: bounds.right - bounds.left, height: bounds.bottom - bounds.top }, 
-        (tilePos, { bounds: b, text, title }: Window) => {
-            const w = b.right - b.left;
-            const h = b.bottom - b.top;
-            
-            
-            const calcTitle = calcTitleValue(b);
-            const tit = calcTitle(title);
-            console.log(tit);
+    const parsedWindows: WindowValue[] = windows.map(w => ({
+        pos: {
+            x: w.bounds.left,
+            y: w.bounds.top
+        },
+        texts: [
+            calcTitleValue(w.bounds)(w.title),
+            ...calcTextValue(w.bounds)(w.text)
+        ],
+        size: { width: w.bounds.right - w.bounds.left, height: w.bounds.bottom - w.bounds.top },
+    }));
 
-            //console.log(tilePos.y, tit.begin.y);
-            if (tilePos.y === tit.begin.y) {
-                if (tilePos.x >= tit.begin.x && tilePos.x < tit.begin.x + tit.text.length) {
-                    return tit.background ? THEME.BACKGROUND : tit.text.charAt(tilePos.x - tit.begin.x);
-                }
-            }
+    const calcWindow: Mapper<WindowValue> = (tilePos, { size, texts }) => {
+        const { width: w, height: h } = size;
+        
+        if (texts) {
+            const t = texts.filter(t => !!t).reduce((prev, curr) => {
+                if (prev) return prev;
 
-            if (tilePos.y === 0) {
-                if (tilePos.x === 0)
-                    return THEME.DOUBLE_SINGLE.TOP_LEFT;
-                if (tilePos.x === w - 1)
-                    return THEME.DOUBLE_SINGLE.TOP_RIGHT;
-                if (tilePos.x > 0 && tilePos.x < w - 1)
-                    return THEME.DOUBLE_SINGLE.HOR;
-            }
-
-            if (tilePos.y === h - 1) {
-                if (tilePos.x === 0)
-                    return THEME.DOUBLE_SINGLE.BOTTOM_LEFT;
-                if (tilePos.x === w - 1)
-                    return THEME.DOUBLE_SINGLE.BOTTOM_RIGHT;
-                if (tilePos.x > 0 && tilePos.x < w - 1)
-                    return THEME.DOUBLE_SINGLE.HOR;
-            } 
-            if ((tilePos.x === 0 || tilePos.x === w - 1) && tilePos.y > 0 && tilePos.y < h)
-                return THEME.DOUBLE_SINGLE.VER;
-                
-
-            const calcText = calcTextValue(b);
-            const texts = calcText(text);
-
-            if (texts) {
-                const t = texts.filter(t => !!t).reduce((prev, curr) => {
-                    if (prev) return prev;
-    
-                    if (tilePos.y === curr.begin.y) {
-                        if (tilePos.x >= curr.begin.x && tilePos.x < curr.begin.x + curr.text.length) {
-                            return curr.background ? THEME.BACKGROUND : curr.text.charAt(tilePos.x - curr.begin.x);
-                        }
+                if (tilePos.y === curr.begin.y) {
+                    if (tilePos.x >= curr.begin.x && tilePos.x < curr.begin.x + curr.text.length) {
+                        return curr.background ? THEME.BACKGROUND : curr.text.charAt(tilePos.x - curr.begin.x);
                     }
-                    return '';
-                }, '');
-                if (t) return t;
-            }
-
-            return NON_BREAKING.SPACE;
+                }
+                return '';
+            }, '');
+            if (t) return t;
         }
-    );
 
-    const calcLayerValue = screen(size, (tilePos: Coord, boxes: Box[], texts: Button[]) => {
+        if (tilePos.y === 0) {
+            if (tilePos.x === 0)
+                return THEME.DOUBLE_SINGLE.TOP_LEFT;
+            if (tilePos.x === w - 1)
+                return THEME.DOUBLE_SINGLE.TOP_RIGHT;
+            if (tilePos.x > 0 && tilePos.x < w - 1)
+                return THEME.DOUBLE_SINGLE.HOR;
+        }
+
+        if (tilePos.y === h - 1) {
+            if (tilePos.x === 0)
+                return THEME.DOUBLE_SINGLE.BOTTOM_LEFT;
+            if (tilePos.x === w - 1)
+                return THEME.DOUBLE_SINGLE.BOTTOM_RIGHT;
+            if (tilePos.x > 0 && tilePos.x < w - 1)
+                return THEME.DOUBLE_SINGLE.HOR;
+        } 
+        if ((tilePos.x === 0 || tilePos.x === w - 1) && tilePos.y > 0 && tilePos.y < h)
+            return THEME.DOUBLE_SINGLE.VER;
+
+        return NON_BREAKING.SPACE;
+    };
+
+    const calcLayerValue = screen(size, (tilePos, boxes: Box[], texts: Button[]) => {
         let tile;
         if (boxes) {
             const t = boxes.reduce((prev, curr) => {
@@ -301,7 +288,7 @@ export default ({ forced = false, highlight = false, buttons, size, windows }: P
     const calcHighlighterValue = screen(size, (tilePos, p) => 
             tilePos.x === p.x && tilePos.y === p.y ? THEME.BACKGROUND : NON_BREAKING.SPACE);
 
-    const calcHotkeysValue = screen(size, (tilePos: Coord, texts: Button[], filter:string[]) => {
+    const calcHotkeysValue = screen(size, (tilePos, texts: Button[], filter:string[]) => {
         let tile;
         if (texts) {
             const t = texts.reduce((prev, curr) => {
@@ -323,6 +310,7 @@ export default ({ forced = false, highlight = false, buttons, size, windows }: P
     const calcInputValue = screen(size, (tilePos, p) => 
         tilePos.x === p.x && tilePos.y === p.y ? THEME.USER : NON_BREAKING.SPACE);
     
+    const { width, height } = size;
     return (
         <Fragment>
             <CommonLayer
@@ -331,17 +319,19 @@ export default ({ forced = false, highlight = false, buttons, size, windows }: P
                 width={correctOffset(width)}
                 height={height}
             />
-            <CommonLayer
-                value={calcWindowValue(windows[0])} 
-                style={{ 
-                    backgroundColor: 'gray', 
-                    color: 'white', 
-                    top: `${windows[0].bounds.top}em`,
-                    left: `${windows[0].bounds.left * .6125}em`,
-                }}
-                width={correctOffset(windows[0].bounds.right - windows[0].bounds.left)}
-                height={windows[0].bounds.bottom - windows[0].bounds.top}
-            />
+            {parsedWindows.map((w, it) => 
+                <CommonLayer
+                    key={it}
+                    value={screen(w.size, calcWindow)(w)} 
+                    style={{ 
+                        backgroundColor: 'gray', 
+                        color: 'white', 
+                        top: `${w.pos.y}em`,
+                        left: `${w.pos.x * .6125}em`,
+                    }}
+                    width={correctOffset(w.size.width)}
+                    height={w.size.height}
+                />)}
             {rest.length > 0 && 
                 <CommonLayer
                     value={calcLayerValue(

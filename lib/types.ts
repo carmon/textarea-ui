@@ -15,7 +15,7 @@ export interface Theme {
     USER: string;
 }
 
-// Components
+// Components (new)
 type Aligment = 'left' | 'center' | 'right';
 type Margin = number | Coord;
 export interface Text {
@@ -37,14 +37,20 @@ export interface Box {
     right: number;
 }
 
+// Values
 export interface StringValue {
     begin: Coord;
     background?: boolean;
     text: string;
 }
 
-// Components (older)
+export interface WindowValue {
+    pos: Coord;
+    texts: StringValue[];
+    size: Size;
+};
 
+// Components (older)
 export interface Button {
     action: () => void;
     background?: boolean; // This is calculated

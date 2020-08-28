@@ -1,9 +1,17 @@
-import { Button, Coord } from './types';
+import { Button, Coord, Mapper, Size } from './types';
 
 export const NON_BREAKING = {
     HYPHEN: '\u2011',
     SPACE: '\xa0'
 };
+
+// Screen (core)
+export const screen = ({ width, height }: Size, func: Mapper<any>) => (...args:any[]) =>
+    new Array(height).fill(0).map((_, y) => 
+        new Array(width).fill(0).map((_,x) => 
+            func({ x , y }, ...args)
+        ).join('')
+    ).join('');
 
 // Parsers
 export const parseText = (text: string) =>

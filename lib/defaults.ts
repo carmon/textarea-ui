@@ -18,7 +18,7 @@ export const THEME: Theme = {
 
 export const TEXT: Text = {
     align: 'left',
-    margin: 0,
+    margin: 1,
     value: ''
 };
 
