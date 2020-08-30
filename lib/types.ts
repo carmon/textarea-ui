@@ -25,6 +25,7 @@ export interface Text {
 }
 export interface Window {
     bounds: Box;
+    color: string;
     title: Text;
     text: Text;
 }
@@ -46,6 +47,7 @@ export interface StringValue {
 
 export interface WindowValue {
     pos: Coord;
+    color: string;
     texts: StringValue[];
     size: Size;
 };

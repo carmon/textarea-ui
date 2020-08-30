@@ -1,7 +1,6 @@
 .layer {
     cursor: default;
-    font-family: monospace, monospace;
-    font-size: 22px;
+    font-family: 'Courier New', Courier, monospace;
     border: none;
     overflow: hidden;
     outline: none;

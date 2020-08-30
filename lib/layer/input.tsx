@@ -9,10 +9,12 @@ import './style.css';
 export default ({ 
     onKeyDown,
     onKeyUp,
+    style = {},
     value, 
     width, 
     height 
 }: InputProps) => {
+    console.log(style);
     // Focus Management
     const inputRef = useRef<HTMLTextAreaElement>(null);
     const handleBlur = () => {
@@ -33,7 +35,7 @@ export default ({
             cols={width} 
             rows={height}
             value={value} 
-            style={{ color, backgroundColor: 'transparent' }}
+            style={{ ...style, color, backgroundColor: 'transparent' }}
             onBlur={handleBlur}
             onKeyDown={onKeyDown}
             onKeyUp={onKeyUp}

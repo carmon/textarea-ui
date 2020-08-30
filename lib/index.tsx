@@ -7,17 +7,18 @@ import InputLayer from './layer/input';
 const isChrome = navigator.userAgent.indexOf("Chrome") != -1;
 const notWindows = navigator.appVersion.indexOf("Win") == -1;
 const correctOffset = (width: number) => notWindows && isChrome ? width + 1 : width;
+const fontSize = isChrome ? '22px' : '20px'; 
 
 import {
     TEXT, 
     THEME,
-    ACTION, PREV, NEXT,
+    // ACTION, PREV, NEXT,
     DIR, LEFT, RIGHT, DOWN, UP
 } from './defaults';
 
 import { 
     Box, 
-    Button,
+    // Button,
     Mapper,
     Size,
     Text,
@@ -25,21 +26,33 @@ import {
     Window,
     WindowValue
 } from './types';
-import { checkButtonFocus, getButtonPos, parseText, screen, NON_BREAKING } from './util';
+
+import { 
+    // checkButtonFocus, 
+    // getButtonPos, 
+    parseText, 
+    screen, 
+    NON_BREAKING 
+} from './util';
 
 interface PropTypes {
-    buttons?: Button[];
     forced?: boolean;
     highlight?: boolean;
     size: Size;
     windows: Window[];
 }
 
-export default ({ forced = false, highlight = false, buttons, size, windows }: PropTypes) => 
+export default ({ 
+    forced = false, 
+    highlight = false, 
+    size, 
+    windows 
+}: PropTypes) => 
 {
     // Begin buttons (put inside Window Calc)
     // All the buttons accumulator
 
+    /*
     const HOTKEYS = !buttons ? [] : buttons.reduce((prev: string[], curr: Button) => {
         const key = curr.text
             .split('')
@@ -55,50 +68,50 @@ export default ({ forced = false, highlight = false, buttons, size, windows }: P
         curr.hotkey = key;
         return [ ...prev, key ];
     }, []);
-
+    */
     // Someone's got to do it
-    const parsedButtons = !buttons ? [] :buttons.map(b => ({ ...b, text: parseText(`[ ${b.text} ]`) })); 
+   //  const parsedButtons = !buttons ? [] :buttons.map(b => ({ ...b, text: parseText(`[ ${b.text} ]`) })); 
     // Begin buttons (put inside Window Calc)
 
-    const [i, setI] = useState(0);
+    // const [i, setI] = useState(0);
 
-    const initialPos = forced && parsedButtons.length ? getButtonPos(parsedButtons[i] || parsedButtons[0]) : { x: 0, y: 0 };
-    const [pos, setPos] = useState(initialPos);
+    // const initialPos = forced && parsedButtons.length ? getButtonPos(parsedButtons[i] || parsedButtons[0]) : { x: 0, y: 0 };
+    const [pos, setPos] = useState({ x: 0, y: 0 });
     // Fixes buttons changing
     // if (forced && pos.x !== initialPos.x || pos.y !== initialPos.y)
     //     setPos(initialPos);
     
     // Only one is marked selected
-    const [selected, ...rest] = parsedButtons.sort((a, b) => 
-        checkButtonFocus(pos, a) ? -1 : checkButtonFocus(pos, b) ? 1 : 0);
+    // const [selected, ...rest] = parsedButtons.sort((a, b) => 
+    //     checkButtonFocus(pos, a) ? -1 : checkButtonFocus(pos, b) ? 1 : 0);
     
     const handleKeyEvent = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         e.preventDefault();
 
-        if (ACTION.includes(e.keyCode) && selected) {
-            selected.action();
-        }
+        // if (ACTION.includes(e.keyCode) && selected) {
+        //     selected.action();
+        // }
 
-        const k = e.key.toLowerCase();
-        if (HOTKEYS.includes(k) && buttons) {
-            buttons.filter(b => b.hotkey === k)[0].action();
-        }
+        // const k = e.key.toLowerCase();
+        // if (HOTKEYS.includes(k) && buttons) {
+        //     buttons.filter(b => b.hotkey === k)[0].action();
+        // }
 
         if (forced) {
-            if (parsedButtons.length) {
-                if (PREV.includes(e.keyCode)) {
-                    const bPositions = parsedButtons.map(b => getButtonPos(b));
-                    const prev = i - 1 < 0 ? bPositions.length - 1 : i - 1;
-                    setI(prev);
-                    setPos(bPositions[prev]);
-                }
-                if (NEXT.includes(e.keyCode)) {
-                    const bPositions = parsedButtons.map(b => getButtonPos(b));
-                    const next = i + 1 === bPositions.length ? 0 : i + 1;
-                    setI(next);
-                    setPos(bPositions[next]);                    
-                }
-            }
+            // if (parsedButtons.length) {
+            //     if (PREV.includes(e.keyCode)) {
+            //         const bPositions = parsedButtons.map(b => getButtonPos(b));
+            //         const prev = i - 1 < 0 ? bPositions.length - 1 : i - 1;
+            //         setI(prev);
+            //         setPos(bPositions[prev]);
+            //     }
+            //     if (NEXT.includes(e.keyCode)) {
+            //         const bPositions = parsedButtons.map(b => getButtonPos(b));
+            //         const next = i + 1 === bPositions.length ? 0 : i + 1;
+            //         setI(next);
+            //         setPos(bPositions[next]);                    
+            //     }
+            // }
         } else {
             const dir = { x: 0, y: 0 };
             if (DIR.includes(e.keyCode)) {
@@ -186,6 +199,7 @@ export default ({ forced = false, highlight = false, buttons, size, windows }: P
     };
 
     const parsedWindows: WindowValue[] = windows.map(w => ({
+        color: w.color,
         pos: {
             x: w.bounds.left,
             y: w.bounds.top
@@ -237,57 +251,58 @@ export default ({ forced = false, highlight = false, buttons, size, windows }: P
         return NON_BREAKING.SPACE;
     };
 
-    const calcLayerValue = screen(size, (tilePos, boxes: Box[], texts: Button[]) => {
-        let tile;
-        if (boxes) {
-            const t = boxes.reduce((prev, curr) => {
-                if (prev) return prev;
+    // const calcLayerValue = screen(size, (tilePos, boxes: Box[], texts: Button[]) => {
+    //     let tile;
+    //     if (boxes) {
+    //         const t = boxes.reduce((prev, curr) => {
+    //             if (prev) return prev;
 
-                if (tilePos.y === curr.top) {
-                    if (tilePos.x === curr.left)
-                        return THEME.DOUBLE_SINGLE.TOP_LEFT;
-                    if (tilePos.x === curr.right - 1)
-                        return THEME.DOUBLE_SINGLE.TOP_RIGHT;
-                    if (tilePos.x > curr.left && tilePos.x < curr.right - 1)
-                        return THEME.DOUBLE_SINGLE.HOR;
-                }
+    //             if (tilePos.y === curr.top) {
+    //                 if (tilePos.x === curr.left)
+    //                     return THEME.DOUBLE_SINGLE.TOP_LEFT;
+    //                 if (tilePos.x === curr.right - 1)
+    //                     return THEME.DOUBLE_SINGLE.TOP_RIGHT;
+    //                 if (tilePos.x > curr.left && tilePos.x < curr.right - 1)
+    //                     return THEME.DOUBLE_SINGLE.HOR;
+    //             }
 
-                if (tilePos.y === curr.bottom - 1) {
-                    if (tilePos.x === curr.left)
-                        return THEME.DOUBLE_SINGLE.BOTTOM_LEFT;
-                    if (tilePos.x === curr.right - 1)
-                        return THEME.DOUBLE_SINGLE.BOTTOM_RIGHT;
-                    if (tilePos.x > curr.left && tilePos.x < curr.right - 1)
-                        return THEME.DOUBLE_SINGLE.HOR;
-                } 
-                if ((tilePos.x === curr.left || tilePos.x === curr.right - 1) && tilePos.y > curr.top && tilePos.y < curr.bottom)
-                    return THEME.DOUBLE_SINGLE.VER;
+    //             if (tilePos.y === curr.bottom - 1) {
+    //                 if (tilePos.x === curr.left)
+    //                     return THEME.DOUBLE_SINGLE.BOTTOM_LEFT;
+    //                 if (tilePos.x === curr.right - 1)
+    //                     return THEME.DOUBLE_SINGLE.BOTTOM_RIGHT;
+    //                 if (tilePos.x > curr.left && tilePos.x < curr.right - 1)
+    //                     return THEME.DOUBLE_SINGLE.HOR;
+    //             } 
+    //             if ((tilePos.x === curr.left || tilePos.x === curr.right - 1) && tilePos.y > curr.top && tilePos.y < curr.bottom)
+    //                 return THEME.DOUBLE_SINGLE.VER;
                 
-                return '';
-            }, '');
-            if (t) tile = t;
-        }
+    //             return '';
+    //         }, '');
+    //         if (t) tile = t;
+    //     }
 
-        if (texts) {
-            const t = texts.filter(t => !!t).reduce((prev, curr) => {
-                if (prev) return prev;
+    //     if (texts) {
+    //         const t = texts.filter(t => !!t).reduce((prev, curr) => {
+    //             if (prev) return prev;
 
-                if (tilePos.y === curr.begin.y) {
-                    if (tilePos.x >= curr.begin.x && tilePos.x < curr.begin.x + curr.text.length) {
-                        return curr.background ? THEME.BACKGROUND : curr.text.charAt(tilePos.x - curr.begin.x);
-                    }
-                }
-                return '';
-            }, '');
-            if (t) tile = t;
-        }
+    //             if (tilePos.y === curr.begin.y) {
+    //                 if (tilePos.x >= curr.begin.x && tilePos.x < curr.begin.x + curr.text.length) {
+    //                     return curr.background ? THEME.BACKGROUND : curr.text.charAt(tilePos.x - curr.begin.x);
+    //                 }
+    //             }
+    //             return '';
+    //         }, '');
+    //         if (t) tile = t;
+    //     }
             
-        return tile || NON_BREAKING.SPACE;
-    });
+    //     return tile || NON_BREAKING.SPACE;
+    // });
 
     const calcHighlighterValue = screen(size, (tilePos, p) => 
             tilePos.x === p.x && tilePos.y === p.y ? THEME.BACKGROUND : NON_BREAKING.SPACE);
 
+    /*
     const calcHotkeysValue = screen(size, (tilePos, texts: Button[], filter:string[]) => {
         let tile;
         if (texts) {
@@ -306,6 +321,7 @@ export default ({ forced = false, highlight = false, buttons, size, windows }: P
         }
         return tile || NON_BREAKING.SPACE;
     });
+    */
 
     const calcInputValue = screen(size, (tilePos, p) => 
         tilePos.x === p.x && tilePos.y === p.y ? THEME.USER : NON_BREAKING.SPACE);
@@ -315,24 +331,29 @@ export default ({ forced = false, highlight = false, buttons, size, windows }: P
         <Fragment>
             <CommonLayer
                 value={calcForegroundValue()} 
-                style={{ backgroundColor: '#0000AA', color: 'cyan' }}
+                style={{ backgroundColor: '#0000AA', color: 'cyan', fontSize }}
                 width={correctOffset(width)}
                 height={height}
             />
-            {parsedWindows.map((w, it) => 
-                <CommonLayer
-                    key={it}
-                    value={screen(w.size, calcWindow)(w)} 
-                    style={{ 
-                        backgroundColor: 'gray', 
-                        color: 'white', 
-                        top: `${w.pos.y}em`,
-                        left: `${w.pos.x * .6125}em`,
-                    }}
-                    width={correctOffset(w.size.width)}
-                    height={w.size.height}
-                />)}
-            {rest.length > 0 && 
+            {parsedWindows.map((w, it) => {
+                console.log(fontSize);
+                return (
+                    <CommonLayer
+                        key={it}
+                        value={screen(w.size, calcWindow)(w)} 
+                        style={{ 
+                            backgroundColor: w.color, 
+                            color: 'black',
+                            fontSize,
+                            top: `${w.pos.y * 1.15}em`,
+                            left: `${w.pos.x * .6125}em`,
+                        }}
+                        width={correctOffset(w.size.width)}
+                        height={w.size.height}
+                    />
+                );
+                })}
+            {/* rest.length > 0 && 
                 <CommonLayer
                     value={calcLayerValue(
                         null,
@@ -341,8 +362,8 @@ export default ({ forced = false, highlight = false, buttons, size, windows }: P
                     style={{ color: 'red', backgroundColor: 'transparent' }}
                     width={correctOffset(width)}
                     height={height}
-                />}
-            {selected &&
+                    /> */}
+            {/* selected &&
                 <CommonLayer
                     value={calcLayerValue(
                         null,
@@ -351,8 +372,8 @@ export default ({ forced = false, highlight = false, buttons, size, windows }: P
                     style={{ color: 'green', backgroundColor: 'transparent' }}
                     width={correctOffset(width)}
                     height={height}
-                />}
-            {parsedButtons.length > 0 && 
+                    />*/}
+            {/* parsedButtons.length > 0 && 
                 <CommonLayer
                     value={calcLayerValue(
                         null,
@@ -361,23 +382,24 @@ export default ({ forced = false, highlight = false, buttons, size, windows }: P
                     style={{ color: 'white', backgroundColor: 'transparent' }}
                     width={correctOffset(width)}
                     height={height}
-                />}
+                />*/}
             {highlight && 
                 <CommonLayer
                     value={calcHighlighterValue(pos)} 
-                    style={{ color: 'black', backgroundColor: 'transparent' }}
+                    style={{ color: 'black', backgroundColor: 'transparent', fontSize }}
                     width={correctOffset(width)}
                     height={height}
                 />}
-            {parsedButtons.length > 0 &&
+            {/* parsedButtons.length > 0 &&
                 <CommonLayer
                     value={calcHotkeysValue(parsedButtons, HOTKEYS)} 
                     style={{ color: 'grey', backgroundColor: 'transparent' }}
                     width={correctOffset(width)}
                     height={height}
-                />}
+            /> */}
             <InputLayer
                 onKeyUp={handleKeyEvent}
+                style={{ fontSize }}
                 value={calcInputValue(pos)}
                 width={correctOffset(width)}
                 height={height}

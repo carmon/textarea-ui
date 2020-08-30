@@ -7,14 +7,16 @@ import './style.css';
 
 const HotlineMaiame = () => {
     const props = {
+        highlight: true,
         windows: [
             {
                 bounds: {
-                    top: 5,
+                    top: 2,
                     left: 10,
                     right: 90,
-                    bottom: 17
+                    bottom: 11
                 },
+                color: 'red',
                 text: {
                     align: 'center',
                     margin: { x: 0, y: 5 },
@@ -28,14 +30,15 @@ const HotlineMaiame = () => {
             },
             {
                 bounds: {
-                    top: 20,
+                    top: 13,
                     left: 10,
                     right: 90,
-                    bottom: 25
+                    bottom: 20
                 },
+                color: 'green',
                 text: {
                     align: 'left',
-                    margin: { x: 3, y: 2 },
+                    margin: { x: 3, y: 3 },
                     value: "I'm right in the left dude!"
                 },
                 title: {
@@ -46,18 +49,19 @@ const HotlineMaiame = () => {
             },
             {
                 bounds: {
-                    top: 27,
+                    top: 23,
                     left: 10,
                     right: 90,
-                    bottom: 30
+                    bottom: 28
                 },
+                color: 'yellow',
                 text: {
-                    align: 'left',
+                    align: 'right',
                     margin: { x: 3, y: 2 },
-                    value: "I'm right in the left dude!"
+                    value: "I'm right in the right dude!"
                 },
                 title: {
-                    align: 'right',
+                    align: 'left',
                     margin: { x: 5 },
                     value: "[Scene test]"
                 },
@@ -65,7 +69,7 @@ const HotlineMaiame = () => {
         ],
         size: {
             width: 100,
-            height: 27
+            height: 30
         }
     };
 
