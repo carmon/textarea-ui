@@ -11,6 +11,7 @@ export const THEME: Theme = {
         BOTTOM_RIGHT: '╛'
     },
     FX: {
+        RAIN: '░',
         SHADOW: '▓',
     },
     USER: '_'

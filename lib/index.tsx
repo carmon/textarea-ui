@@ -37,13 +37,15 @@ import {
 
 interface PropTypes {
     forced?: boolean;
+    grid?: boolean;
     highlight?: boolean;
     size: Size;
     windows: Window[];
 }
 
 export default ({ 
-    forced = false, 
+    forced = false,
+    grid = false,
     highlight = false, 
     size, 
     windows 
@@ -148,14 +150,16 @@ export default ({
         }        
     };
 
-    const calcForegroundValue = screen(size, (tilePos) => {
-        if (tilePos.y === 0) 
-            return (tilePos.x % 10).toString();
-        
-        if (tilePos.x === 0)
-            return (tilePos.y % 10).toString();
-
-        return NON_BREAKING.SPACE;
+    const calcForegroundValue = screen(size, tilePos => {
+        if (grid) {
+            if (tilePos.y === 0) 
+                return (tilePos.x % 10).toString();
+            
+            if (tilePos.x === 0)
+                return (tilePos.y % 10).toString();
+        }
+        // return NON_BREAKING.SPACE;
+        return THEME.FX.RAIN;
     });
 
     const calcTitleValue = (b: Box) => (value: Text | string): StringValue => {
@@ -331,7 +335,7 @@ export default ({
         <Fragment>
             <CommonLayer
                 value={calcForegroundValue()} 
-                style={{ backgroundColor: '#0000AA', color: 'cyan', fontSize }}
+                style={{ backgroundColor: 'yellow', color: 'blue', fontSize }}
                 width={correctOffset(width)}
                 height={height}
             />
