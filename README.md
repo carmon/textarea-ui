@@ -1,10 +1,6 @@
 # textarea-ui
 A little retro inspired text-ui for web browsers.
 
-```
-Disclaimer: this project is still in development, data structures will change in the future, if you want to use it as is, fork it. 
-```
-
 ## Instructions
     - npm i
     - npm run start
@@ -14,6 +10,13 @@ As the name should already imply, all react components are built from [HTML text
 There are 2 types of layers:
 - Graphic layers: textareas that function as only graphic ui
 - Input layer: textarea that controls user input and browser focus
+
+## Git branching logic
+This is a personal project, mainly created to make [my personal web page](https://carmon.dev).
+Main branches are these:
+- production: my work in progress in my personal web page.
+- develop: development branch, all features regarding textarea-ui will be merged here.
+- palette: this is an experimental branch, made to test the posibilities of textarea-ui (not focused always on UI)
 
 ### Normal mode
 User can move freely with WASD or arrows, ENTER or SPACEBAR to trigger buttons actions.

@@ -25,7 +25,7 @@ const HotlineMaiame = () => {
                 title: {
                     align: 'center',
                     margin: { x: 0 },
-                    value: "[Scene test]"
+                    value: "[Upper]"
                 },
             },
             {
@@ -44,7 +44,7 @@ const HotlineMaiame = () => {
                 title: {
                     align: 'right',
                     margin: { x: 5 },
-                    value: "[Scene test]"
+                    value: "[Middle]"
                 },
             },
             {
@@ -63,7 +63,7 @@ const HotlineMaiame = () => {
                 title: {
                     align: 'left',
                     margin: { x: 5 },
-                    value: "[Scene test]"
+                    value: "[Lower]"
                 },
             }
         ],

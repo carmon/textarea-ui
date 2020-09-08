@@ -6,7 +6,7 @@ import InputLayer from './layer/input';
 
 const isChrome = navigator.userAgent.indexOf("Chrome") != -1;
 const notWindows = navigator.appVersion.indexOf("Win") == -1;
-const correctOffset = (width: number) => notWindows && isChrome ? width + 1 : width;
+const correctOffset = (width: number) => isChrome ? width + 1 : width;
 const fontSize = isChrome ? '22px' : '20px'; 
 
 import {
@@ -348,7 +348,7 @@ export default ({
                             top: `${w.pos.y * 1.15}em`,
                             left: `${w.pos.x * .6125}em`,
                         }}
-                        width={correctOffset(w.size.width)}
+                        width={notWindows ? correctOffset(w.size.width) : w.size.width}
                         height={w.size.height}
                     />
                 );
