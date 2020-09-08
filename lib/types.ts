@@ -10,6 +10,7 @@ export interface Theme {
         BOTTOM_RIGHT: string;
     },
     FX: {
+        RAIN: string;
         SHADOW: string;
     }
     USER: string;

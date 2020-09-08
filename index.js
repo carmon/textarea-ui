@@ -7,6 +7,7 @@ import './style.css';
 
 const HotlineMaiame = () => {
     const props = {
+        grid: true,
         highlight: true,
         windows: [
             {
@@ -16,10 +17,10 @@ const HotlineMaiame = () => {
                     right: 90,
                     bottom: 11
                 },
-                color: 'red',
+                color: 'cyan',
                 text: {
                     align: 'center',
-                    margin: { x: 0, y: 5 },
+                    margin: { x: 0, y: 4 },
                     value:  "I'm right in the center dude!"
                 },
                 title: {
