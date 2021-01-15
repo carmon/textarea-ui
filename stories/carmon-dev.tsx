@@ -15,8 +15,8 @@ export default () => {
                     bottom: 28
                 },
                 color: 'cyan',
-                text: getTextValue('center', { x: 0, y: 20 }, "This site is currently under construction! (ǒ . ǒ)"),
-                title: getTextValue('center', { x: 0 }, "[Welcome to carmon.dev]")
+                text: getTextValue('center', { x: 0, y: 3 }, "This site is currently under construction, \n you can visit my little projects meanwhile: \n \n \n textarea-ui \n \n TIL \n \n rifles \n \n github profile"),
+                title: getTextValue('center', { x: 0 }, "[Carmon is a developer certification website]")
             }
         ],
         size: {

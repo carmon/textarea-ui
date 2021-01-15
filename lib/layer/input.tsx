@@ -14,7 +14,7 @@ export default ({
     width, 
     height 
 }: InputProps) => {
-    console.log(style);
+    // console.log(style);
     // Focus Management
     const inputRef = useRef<HTMLTextAreaElement>(null);
     const handleBlur = () => {

@@ -46,3 +46,4 @@ arrow left and right or TAB to move.
 - No cellphone browser support at the moment
 - Can't put exclamation mark (!) without a letter after in titles, breaks the line
 - Offset to col attribute (+1) must be put in Chrome in Linux/macOS
+- Some characters end up being more widder than the normal width

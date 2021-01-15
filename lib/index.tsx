@@ -186,7 +186,7 @@ export default ({
         const res = t.value.split('\n');
         
         return res.map((text, i) => {
-            console.log(maxLineLen, t.value.substr(maxLineLen * i, maxLineLen));
+            console.log(i, maxLineLen, t.value.substr(maxLineLen * i, maxLineLen));
             return {
                 begin: {
                     x: t.align === 'left' 
@@ -209,7 +209,7 @@ export default ({
         },
         texts: [
             calcTitleValue(w.bounds)(w.title),
-            ...calcTextValue(w.bounds)(w.text)
+            ...calcTextValue(w.bounds)(w.text),
         ],
         size: { width: w.bounds.right - w.bounds.left, height: w.bounds.bottom - w.bounds.top },
     }));
