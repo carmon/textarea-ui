@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import Story from "./stories/align-test.tsx";
+import Story from "./stories/carmon-dev.tsx";
 
 import './style.css';
 

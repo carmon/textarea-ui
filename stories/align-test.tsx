@@ -1,13 +1,7 @@
 import * as React from 'react';
 
 import Screen from "../lib/index";
-import { Aligment, Margin, Text } from "../lib/types";
-
-const getTextValue = (align: string, margin: { x?: number, y?: number}, value: string): Text => ({
-    align: align as Aligment,
-    margin: margin as Margin,
-    value,
-});
+import { getTextValue } from './util/get-values';
 
 export default () => {
     const props = {
