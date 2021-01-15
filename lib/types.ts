@@ -17,8 +17,8 @@ export interface Theme {
 }
 
 // Components (new)
-type Aligment = 'left' | 'center' | 'right';
-type Margin = number | Coord;
+export type Aligment = 'left' | 'center' | 'right';
+export type Margin = number | Coord;
 export interface Text {
     align: Aligment;
     margin: Margin;
