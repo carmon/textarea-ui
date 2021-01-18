@@ -6,8 +6,10 @@ import InputLayer from './layer/input';
 
 const isChrome = navigator.userAgent.indexOf("Chrome") != -1;
 const notWindows = navigator.appVersion.indexOf("Win") == -1;
-const correctOffset = (width: number) => isChrome ? width + 1 : width;
-const fontSize = isChrome ? '22px' : '20px'; 
+
+// This offset is working OK on windows, check linux chrome versions 
+const correctOffset = (width: number) => isChrome ? width /*+ 1*/: width;
+const fontSize = isChrome ? '21.8px' : '20px'; // Fixed size 
 
 import {
     TEXT, 
@@ -72,7 +74,7 @@ export default ({
     }, []);
     */
     // Someone's got to do it
-   //  const parsedButtons = !buttons ? [] :buttons.map(b => ({ ...b, text: parseText(`[ ${b.text} ]`) })); 
+    // const parsedButtons = !buttons ? [] :buttons.map(b => ({ ...b, text: parseText(`[ ${b.text} ]`) })); 
     // Begin buttons (put inside Window Calc)
 
     // const [i, setI] = useState(0);
@@ -183,7 +185,11 @@ export default ({
 
         const len = t.value.length;
         const maxLineLen = b.right - m.x * 2;
-        const res = t.value.split('\n');
+        let res = t.value.split('\n'); 
+        if (len > maxLineLen) {
+            const m = len / maxLineLen;
+            res = new Array(m).fill('').map((_, i) => t.value.substr(i * maxLineLen, maxLineLen));
+        }
         
         return res.map((text, i) => {
             console.log(i, maxLineLen, t.value.substr(maxLineLen * i, maxLineLen));
@@ -339,7 +345,6 @@ export default ({
                 height={height}
             />
             {parsedWindows.map((w, it) => {
-                console.log(fontSize);
                 return (
                     <CommonLayer
                         key={it}
