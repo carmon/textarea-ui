@@ -16,6 +16,23 @@ export interface Theme {
     USER: string;
 }
 
+interface LayerStyle {
+    background: string;
+    characters: string;
+}
+
+export interface WindowStyle {
+    foreground: LayerStyle;
+    buttons: LayerStyle;
+    hotkeys: string;
+}
+
+export interface ColorTheme {
+    foreground: LayerStyle;
+    window: WindowStyle;
+    highlighter: string;
+}
+
 // Components (new)
 export type Aligment = 'left' | 'center' | 'right';
 export type Margin = number | Coord;
@@ -24,11 +41,18 @@ export interface Text {
     margin: Margin;
     value: string;
 }
+export interface Button {
+    action: () => void;
+    begin: Coord;
+    text: string;
+}
 export interface Window {
     bounds: Box;
-    color: string;
+    buttons?: Button[];
+    color?: string;
     title: Text;
-    text: Text;
+    text?: Text;
+    texts?: Text[];
 }
 
 // Primitives
@@ -48,19 +72,10 @@ export interface StringValue {
 
 export interface WindowValue {
     pos: Coord;
-    color: string;
+    color?: string;
     texts: StringValue[];
     size: Size;
 };
-
-// Components (older)
-export interface Button {
-    action: () => void;
-    background?: boolean; // This is calculated
-    begin: Coord;
-    hotkey: string; // This is calculated
-    text: string;
-}
 
 // Core
 export type Mapper<T> = (c: Coord, ...r:T[]) => string;

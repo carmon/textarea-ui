@@ -6,6 +6,7 @@ import { getTextValue } from './util/get-values';
 export default () => {
     const props = {
         grid: true,
+        free: true,
         highlight: true,
         windows: [
             {

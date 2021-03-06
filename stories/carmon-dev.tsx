@@ -3,25 +3,75 @@ import * as React from 'react';
 import Screen from "../lib/index";
 import { getTextValue } from './util/get-values';
 
+const getOpenLinkAction = (link: string) => () => window.open(link);
+
 export default () => {
     const props = {
+        colorTheme: {
+            foreground: {
+                background: '#073b4c',
+                characters: 'gray'
+            },
+            window: {
+                foreground: {
+                    background: '#118ab2',
+                    characters: '#88fcdd'
+                },
+                buttons: {
+                    background: '#f0426b',
+                    characters: 'black'
+                },
+                hotkeys: '#ffd166'
+            },
+            highlighter: 'black'
+        },
         highlight: true,
         windows: [
             {
                 bounds: {
                     top: 2,
-                    left: 10,
-                    right: 90,
-                    bottom: 28
+                    left: 5,
+                    right: 85,
+                    bottom: 23
                 },
-                color: 'cyan',
-                text: getTextValue('center', { x: 0, y: 3 }, "This site is currently under construction, \n you can visit my little projects meanwhile: \n \n \n textarea-ui \n \n TIL \n \n rifles \n \n github profile"),
-                title: getTextValue('center', { x: 0 }, "[Carmon is a developer certification website]")
+                buttons: [
+                    {
+                        action: getOpenLinkAction('https://github.com/carmon'),
+                        begin: { x: 35, y: 6 },
+                        text: 'Github'  
+                    },
+                    {
+                        action: getOpenLinkAction('https://www.linkedin.com/in/carmon/'),
+                        begin: { x: 34, y: 8 },
+                        text: 'LinkedIn'  
+                    },
+                    {
+                        action: getOpenLinkAction('https://stackoverflow.com/users/story/3241152'),
+                        begin: { x: 31, y: 10 },
+                        text: 'stack overflow'  
+                    },
+                    {
+                        action: getOpenLinkAction('https://til.vercel.app/'),
+                        begin: { x: 29, y: 12 },
+                        text: 'TIL: personal blog'  
+                    },
+                    {
+                        action: getOpenLinkAction('https://www.twitch.tv/carmontv'),
+                        begin: { x: 35, y: 14 },
+                        text: 'twitch'  
+                    }
+                ],
+                texts: [ 
+                    getTextValue('center', { x: 0, y: 3 }, "This site is currently under construction, \n you can visit this links meanwhile:"),
+                    getTextValue('center', { x: 0, y: 16 }, "[← → ↑ ↓] to move, [↵] to activate button, \n highlighted characters are shortcuts.")
+                ],
+                title: getTextValue('center', { x: 0 }, "[Carmon's personal website]")
             }
         ],
+        selected: 0,
         size: {
-            width: 100,
-            height: 30
+            width: 90,
+            height: 25
         }
     };
 

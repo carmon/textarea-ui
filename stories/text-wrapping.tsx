@@ -6,7 +6,7 @@ import Screen from "../lib/index";
 import { getTextValue } from './util/get-values';
 
 export default () => {
-    const title = 'textarea-ui hard wrapping feature';
+    const title = 'textarea ui hard wrapping feature';
     const longText = 'La contratación sostenible es aplicable tanto al sector privado como del sector público, y por supuesto sus promotores aspiran a ver su aplicación en todos los ámbitos de la economía. Influir en la práctica de contratación dentro de una empresa del sector privado no es sencillo para los gobiernos, lo que significa que las propias empresas a menudo tienen que automotivarse para abrazar la sostenibilidad.';
     const width = 60;
     
@@ -17,6 +17,7 @@ export default () => {
 
     const props = {
         buttons: [],
+        free: true,
         windows: [
             {
                 bounds: {

@@ -14,7 +14,6 @@ export default ({
     width, 
     height 
 }: InputProps) => {
-    // console.log(style);
     // Focus Management
     const inputRef = useRef<HTMLTextAreaElement>(null);
     const handleBlur = () => {
@@ -39,9 +38,8 @@ export default ({
             onBlur={handleBlur}
             onKeyDown={onKeyDown}
             onKeyUp={onKeyUp}
-            ref={inputRef}
-            // This is just to ignore a react error
-            readOnly
+            ref={inputRef}            
+            readOnly // This is just to ignore a react error
         />
     );
 };

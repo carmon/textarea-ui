@@ -1,4 +1,23 @@
-import { Text, Theme } from './types'; 
+import { ColorTheme, Text, Theme } from './types'; 
+
+export const COLOR_THEME: ColorTheme = {
+    foreground: {
+        background: 'gray',
+        characters: 'blue'
+    },
+    window: {
+        foreground: {
+            background: 'cyan',
+            characters: 'black'
+        },
+        buttons: {
+            background: 'red',
+            characters: 'white'
+        },
+        hotkeys: 'yellow'
+    },
+    highlighter: 'black'
+};
 
 export const THEME: Theme = {
     BACKGROUND: '█',
@@ -23,7 +42,7 @@ export const TEXT: Text = {
     value: ''
 };
 
-// KEYS
+// KEY CODES
 
 // ACTION
 export const ACTION = [
@@ -31,14 +50,20 @@ export const ACTION = [
     32  // SPACEBAR
 ];
 
+export const CLOSE = [
+    27 // ESCAPE
+];
+
 // FORCE MODE
 export const NEXT = [ 
     9, // TAB
     39, // RIGHT
+    40 // DOWN
 ];
 
 export const PREV = [
     37, // LEFT
+    38 // UP
 ];
 
 // MOVEMENT

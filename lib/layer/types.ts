@@ -7,5 +7,5 @@ export interface LayerProps {
 
 export interface InputProps extends LayerProps {
     onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
-    onKeyUp: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+    onKeyUp?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
 }

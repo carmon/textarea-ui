@@ -4,6 +4,11 @@ body {
     transform: scale(1);
 }
 
-#root {
+/* #root {
     display: flex;
+} */
+
+textarea {
+    font-family: monospace;
+    padding: 0;
 }
