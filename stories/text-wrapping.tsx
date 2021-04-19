@@ -26,7 +26,12 @@ export default () => {
                     right: width,
                     bottom: 15
                 },
-                color: 'red',
+                color: {
+                    foreground: {
+                        background: 'yellow',
+                        characters: 'blue'
+                    }
+                },
                 text: getTextValue('left', {x: 1, y: 2}, longText),
                 title: getTextValue('left', {x: margin}, title),
             }

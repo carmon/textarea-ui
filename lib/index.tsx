@@ -12,12 +12,11 @@ const correctOffset = (width: number) => isChrome ? width /*+ 1*/: width;
 const fontSize = isChrome ? '21.8px' : '20px'; // Fixed size 
 
 import {
-    COLOR_THEME,
     TEXT, 
     THEME,
     // ACTION, PREV, NEXT,
     DIR, LEFT, RIGHT, DOWN, UP
-} from './defaults';
+} from './defaults/values';
 
 import { 
     Box,
@@ -26,7 +25,7 @@ import {
     StringValue,
     Window,
     WindowValue,
-    ColorTheme
+    ScreenColor
 } from './types';
 
 import { 
@@ -36,9 +35,10 @@ import {
     screen, 
     NON_BREAKING 
 } from './util';
+import { getScreenColor, getWindowColor } from './defaults/utils';
 
 interface PropTypes {
-    colorTheme?: ColorTheme;
+    color?: Partial<ScreenColor>;
     free?: boolean;
     grid?: boolean;
     highlight?: boolean;
@@ -57,14 +57,15 @@ const getInitialPos = (w: Window) => {
 };
 
 export default ({
-    colorTheme = COLOR_THEME,
+    color,
     grid = false,
     highlight = false,
     selected = -1,
     size, 
     windows 
 }: PropTypes) => {
-    const [pos, setPos] = useState(selected < 0 ? { x: 0, y: 0 } : getInitialPos(windows[selected]));    
+    const c = getScreenColor(color);
+    const [pos, setPos] = useState(selected < 0 ? { x: 0, y: 0 } : getInitialPos(windows[selected]));
     
     const handleKeyEvent = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         e.preventDefault();
@@ -133,15 +134,22 @@ export default ({
     const calcTextValue = (b: Box) => (value: Text | string): StringValue[] => {
         const t = typeof(value) === 'string' ? { ...TEXT, value } : value;
         const m = typeof(t.margin) === 'number' ? { x: t.margin, y: t.margin } : t.margin;
-
         const len = t.value.length;
-        const maxLineLen = b.right - m.x * 2;
-        let res = t.value.split('\n'); 
-        if (len > maxLineLen) {
-            const m = Math.round(len / maxLineLen); // This avoids an error when changing examples, check later
-            res = new Array(m).fill('').map((_, i) => t.value.substr(i * maxLineLen, maxLineLen));
-        }
-        
+        const maxLineLen = b.right - b.left - m.x * 2 - 2;        
+        const res = t.value
+            .split('\n') // Look for manual wrapping
+            .reduce(
+                (prev: string[], curr) => {
+                    if (curr.length > maxLineLen) {
+                        const m = Math.ceil(curr.length / maxLineLen);
+                        const lines = new Array(m).fill('').map((_, i) => t.value.substr(i * maxLineLen, maxLineLen));
+                        return [...prev, ...lines];
+                    }
+                    return [...prev, curr];
+                },
+                []
+            );
+
         return res.map((text, i) => {
             return {
                 begin: {
@@ -158,7 +166,7 @@ export default ({
     };
     
     const parsedWindows: WindowValue[] = windows.map(w => ({
-        color: w.color,
+        color: getWindowColor(w.color),
         pos: {
             x: w.bounds.left,
             y: w.bounds.top
@@ -183,8 +191,8 @@ export default ({
             <CommonLayer
                 value={calcForegroundValue()} 
                 style={{ 
-                    backgroundColor: colorTheme.foreground.background, 
-                    color: colorTheme.foreground.characters, 
+                    backgroundColor: c.background, 
+                    color: c.characters, 
                     fontSize 
                 }}
                 width={correctOffset(width)}
@@ -198,14 +206,13 @@ export default ({
                     selected={selected === it}
                     pos={pos}
                     setPos={(x, y) => setPos({x, y})}
-                    style={colorTheme.window}
                     value={w}
                 />)}
             {highlight && 
                 <CommonLayer
                     value={calcHighlighterValue(pos)} 
                     style={{ 
-                        color: colorTheme.highlighter, 
+                        color: c.highlighter, 
                         backgroundColor: 'transparent', 
                         fontSize 
                     }}

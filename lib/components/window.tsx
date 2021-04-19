@@ -1,18 +1,17 @@
 import * as React from 'react';
 import { Fragment, useEffect, useState } from 'react';
-import { Button, Coord, Mapper, WindowStyle, WindowValue } from '../types';
+import { Button, Coord, Mapper, WindowValue } from '../types';
 import { /* checkButtonFocus , getButtonPos,*/ getButtonPos, NON_BREAKING, parseButtonText, screen } from '../util';
 
 import CommonLayer from '../layer/common';
 import InputLayer from '../layer/input';
-import { ACTION, NEXT, PREV, THEME } from '../defaults';
+import { ACTION, NEXT, PREV, THEME } from '../defaults/values';
 
 interface Props {
     buttons: Button[];
     fontSize: string;
     value: WindowValue;
     selected: boolean;
-    style: WindowStyle;
     pos: { x: number, y: number };
     setPos: (x: number, y: number) => void;
 }
@@ -100,12 +99,10 @@ export default ({
     buttons, 
     fontSize, 
     selected,
-    style,
     value,
     pos, 
     setPos
 }: Props) => {
-
     const [current, setCurrent] = useState(0);
 
     const HOTKEYS = buttons.reduce((prev: string[], curr: Button) => {
@@ -124,7 +121,7 @@ export default ({
 
     const handleKeyEvent = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         e.stopPropagation();
-        
+
         if (buttons.length) {
             const i = HOTKEYS.indexOf(e.key);
             if (i >= 0) {
@@ -137,7 +134,7 @@ export default ({
     
             if (PREV.includes(e.keyCode))
                 setCurrent(current === 0 ? buttons.length - 1 : current - 1);
-    
+
             if (ACTION.includes(e.keyCode))
                 buttons[current].action();
         }
@@ -160,8 +157,8 @@ export default ({
             <CommonLayer
                 value={screen(value.size, calcWindow)(value)} 
                 style={{ 
-                    backgroundColor: value.color || style.foreground.background, 
-                    color: style.foreground.characters,
+                    backgroundColor: value.color.foreground.background, 
+                    color: value.color.foreground.characters,
                     ...defaultStyle
                 }}
                 width={value.size.width}
@@ -172,7 +169,7 @@ export default ({
                     value={screen(value.size, calcButtonsValue)(buttons, true)}
                     style={{ 
                         backgroundColor: 'transparent',
-                        color: style.buttons.background,
+                        color: value.color.buttons.background,
                         ...defaultStyle
                     }}
                     width={value.size.width}
@@ -183,7 +180,7 @@ export default ({
                     value={screen(value.size, calcButtonsValue)(buttons, false)}
                     style={{ 
                         backgroundColor: 'transparent',
-                        color: style.buttons.characters,
+                        color: value.color.buttons.characters,
                         ...defaultStyle
                     }}
                     width={value.size.width}
@@ -193,7 +190,7 @@ export default ({
                 value={screen(value.size, calcHotkeysValue)(buttons.map(parseButtonText), HOTKEYS)} 
                 style={{ 
                     backgroundColor: 'transparent',
-                    color: style.hotkeys,
+                    color: value.color.hotkeys,
                     ...defaultStyle
                 }}
                 width={value.size.width}

@@ -5,6 +5,10 @@ import { getTextValue } from './util/get-values';
 
 export default () => {
     const props = {
+        color: {
+            background: 'aliceblue',
+            characters: 'blueviolet'
+        },
         grid: true,
         free: true,
         highlight: true,
@@ -16,9 +20,14 @@ export default () => {
                     right: 90,
                     bottom: 11
                 },
-                color: 'cyan',
+                color: {
+                    foreground: {
+                        background: '#ff3320',
+                        characters: 'white'
+                    }
+                },
                 text: getTextValue('center', { x: 0, y: 4 }, "I'm right in the center dude!"),
-                title: getTextValue('center', { x: 0 }, "[Upper]"),
+                title: getTextValue('center', { x: 0 }, "[Upper red&white]"),
             },
             {
                 bounds: {
@@ -27,9 +36,14 @@ export default () => {
                     right: 90,
                     bottom: 20
                 },
-                color: 'green',
+                color: {
+                    foreground: {
+                        background: 'lightgreen',
+                        characters: 'blue'
+                    }
+                },
                 text: getTextValue('left', { x: 3, y: 3 }, "I'm right in the left dude!"),
-                title: getTextValue('right', { x: 5 }, "[Middle]"),
+                title: getTextValue('right', { x: 5 }, "[Middle lightgreen&blue]"),
             },
             {
                 bounds: {
@@ -38,9 +52,14 @@ export default () => {
                     right: 90,
                     bottom: 28
                 },
-                color: 'yellow',
+                color: {
+                    foreground: {
+                        background: 'cyan',
+                        characters: 'magenta'
+                    }
+                },
                 text: getTextValue('right', { x: 3, y: 2 }, "I'm right in the right dude!"),
-                title: getTextValue('left', { x: 5 }, "[Lower]"),
+                title: getTextValue('left', { x: 5 }, "[Lower cyan&magenta]"),
             }
         ],
         size: {

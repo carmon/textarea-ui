@@ -4,16 +4,23 @@ import ReactDOM from "react-dom";
 import AlignStory from "./stories/align-test";
 import CarmonStory from "./stories/carmon-dev";
 import TextWrap from "./stories/text-wrapping";
+import Welcome from "./stories/welcome";
 
 import './style.css';
+
+const getSearchWord = () => {
+  const res = /\?([\w-]+)/g.exec(window.location.search);
+  return res ? res[1] : undefined;
+}
 
 const ExamplesContainer = () => {
   const [selected, setSelected] = useState(0);
 
   const examples = [
-    <CarmonStory />,
+    <Welcome />,
     <TextWrap />,
     <AlignStory />,
+    <CarmonStory />,
   ];
 
   const downHandler = ({ key }) => {
@@ -37,8 +44,10 @@ const ExamplesContainer = () => {
   );
 };
 
+const w = getSearchWord();
+
 ReactDOM.render(
-    <ExamplesContainer />,
+    w === 'web' ? <CarmonStory /> : <ExamplesContainer />,
     document.getElementById('root')
 );
 

@@ -16,20 +16,18 @@ export interface Theme {
     USER: string;
 }
 
-interface LayerStyle {
+interface LayerColor {
     background: string;
     characters: string;
 }
 
-export interface WindowStyle {
-    foreground: LayerStyle;
-    buttons: LayerStyle;
-    hotkeys: string;
+export interface WindowColor {
+    foreground?: Partial<LayerColor>;
+    buttons?: Partial<LayerColor>;
+    hotkeys?: string;
 }
 
-export interface ColorTheme {
-    foreground: LayerStyle;
-    window: WindowStyle;
+export interface ScreenColor extends LayerColor {
     highlighter: string;
 }
 
@@ -49,7 +47,7 @@ export interface Button {
 export interface Window {
     bounds: Box;
     buttons?: Button[];
-    color?: string;
+    color?: Partial<WindowColor>;
     title: Text;
     text?: Text;
     texts?: Text[];
@@ -70,9 +68,15 @@ export interface StringValue {
     text: string;
 }
 
+export interface WindowColorValue {
+    foreground: LayerColor;
+    buttons: LayerColor;
+    hotkeys: string;
+}
+
 export interface WindowValue {
     pos: Coord;
-    color?: string;
+    color: WindowColorValue;
     texts: StringValue[];
     size: Size;
 };

@@ -7,22 +7,9 @@ const getOpenLinkAction = (link: string) => () => window.open(link);
 
 export default () => {
     const props = {
-        colorTheme: {
-            foreground: {
-                background: '#073b4c',
-                characters: 'gray'
-            },
-            window: {
-                foreground: {
-                    background: '#118ab2',
-                    characters: '#88fcdd'
-                },
-                buttons: {
-                    background: '#f0426b',
-                    characters: 'black'
-                },
-                hotkeys: '#ffd166'
-            },
+        color: {
+            characters: 'gray',
+            background: '#073b4c',
             highlighter: 'black'
         },
         highlight: true,
@@ -61,6 +48,17 @@ export default () => {
                         text: 'twitch'  
                     }
                 ],
+                color: {
+                    foreground: {
+                        background: '#118ab2',
+                        characters: '#88fcdd'
+                    },
+                    buttons: {
+                        background: '#f0426b',
+                        characters: 'black'
+                    },
+                    hotkeys: '#ffd166'
+                },
                 texts: [ 
                     getTextValue('center', { x: 0, y: 3 }, "This site is currently under construction, \n you can visit this links meanwhile:"),
                     getTextValue('center', { x: 0, y: 16 }, "[← → ↑ ↓] to move, [↵] to activate button, \n highlighted characters are shortcuts.")
