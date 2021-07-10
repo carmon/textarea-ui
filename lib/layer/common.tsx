@@ -4,7 +4,7 @@ import { LayerProps } from './types';
 
 import './style.css';
 
-export default ({ value, style, width, height }: LayerProps) => 
+const CommonLayer = ({ value, style, width, height }: LayerProps) => 
     <textarea
         className="layer"
         cols={width} 
@@ -13,4 +13,6 @@ export default ({ value, style, width, height }: LayerProps) =>
         value={value}
         disabled
         readOnly
-    />
+    />;
+
+export default CommonLayer; 

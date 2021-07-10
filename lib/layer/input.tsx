@@ -6,7 +6,7 @@ import { InputProps } from './types';
 
 import './style.css';
 
-export default ({ 
+const InputLayer = ({ 
     onKeyDown,
     onKeyUp,
     style = {},
@@ -27,6 +27,24 @@ export default ({
         setColor(() => color === 'white' ? 'black' : 'white');
     }, 450)
 
+    const [hover, setHover] = useState(false);
+
+    const handleMouseEnter = () => {
+        setHover(true);
+    };
+
+    const handleMouseMove = (e: React.MouseEvent<HTMLTextAreaElement>) => {
+        const startX = style.left ? style.left.split('em')[0] : 0;
+        const startY = style.top ? style.top.split('em')[0] : 0;
+        console.log(startX, startY);
+        console.log(e.clientX, e.clientY);
+        console.log(e.clientX - startX, e.clientY - startY);
+    };
+    
+    const handleMouseLeave = () => {
+        setHover(false);
+    };
+
     return (
         <textarea 
             autoFocus
@@ -34,8 +52,11 @@ export default ({
             cols={width} 
             rows={height}
             value={value} 
-            style={{ ...style, color, backgroundColor: 'transparent' }}
+            style={{ ...style, color, backgroundColor: 'transparent', cursor: hover ? 'crosshair' : 'default' }}
             onBlur={handleBlur}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            onMouseMoveCapture={handleMouseMove}
             onKeyDown={onKeyDown}
             onKeyUp={onKeyUp}
             ref={inputRef}            
@@ -43,3 +64,5 @@ export default ({
         />
     );
 };
+
+export default InputLayer;

@@ -7,8 +7,6 @@ import WindowComponent from './components/window';
 
 const isChrome = navigator.userAgent.indexOf("Chrome") != -1;
 
-// This offset is working OK on windows, check linux chrome versions 
-const correctOffset = (width: number) => isChrome ? width /*+ 1*/: width;
 const fontSize = isChrome ? '21.8px' : '20px'; // Fixed size 
 
 import {
@@ -56,7 +54,7 @@ const getInitialPos = (w: Window) => {
     }
 };
 
-export default ({
+const App = ({
     color,
     grid = false,
     highlight = false,
@@ -71,6 +69,7 @@ export default ({
         e.preventDefault();
 
         const dir = { x: 0, y: 0 };
+        console.log(e.key, e.keyCode);
         if (DIR.includes(e.keyCode)) {
             const i = DIR.indexOf(e.keyCode);
             const mod = (i % 2 ? i - 1 : i) / 2;
@@ -195,7 +194,7 @@ export default ({
                     color: c.characters, 
                     fontSize 
                 }}
-                width={correctOffset(width)}
+                width={width}
                 height={height}
             />
             {parsedWindows.map((w, it) => 
@@ -216,7 +215,7 @@ export default ({
                         backgroundColor: 'transparent', 
                         fontSize 
                     }}
-                    width={correctOffset(width)}
+                    width={width}
                     height={height}
                 />}
             {selected < 0 && 
@@ -224,9 +223,11 @@ export default ({
                     onKeyUp={handleKeyEvent}
                     style={{ fontSize }}
                     value={calcInputValue(pos)}
-                    width={correctOffset(width)}
+                    width={width}
                     height={height}
                 />}
         </Fragment>
     );
 };
+
+export default App;

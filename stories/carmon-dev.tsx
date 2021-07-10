@@ -12,7 +12,7 @@ export default () => {
             background: '#073b4c',
             highlighter: 'black'
         },
-        highlight: true,
+        highlight: false,
         windows: [
             {
                 bounds: {

@@ -5,7 +5,7 @@ import * as React from 'react';
 import Screen from "../lib/index";
 import { getTextValue } from './util/get-values';
 
-export default () => {
+const Welcome = () => {
     const title = '[Welcome to textarea ui]';
     const width = 60;
     
@@ -56,3 +56,5 @@ export default () => {
 
     return <Screen {...props} />;
 };
+
+export default Welcome;

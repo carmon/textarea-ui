@@ -72,7 +72,6 @@ const calcButtonsValue: Mapper<any> = (tilePos, texts: Button[], isBackground: b
     return NON_BREAKING.SPACE;
 };
 
-
 const calcInputValue: Mapper<Coord> = (tilePos, p: Coord) => 
     tilePos.x === p.x && tilePos.y === p.y ? THEME.USER : NON_BREAKING.SPACE;
 
@@ -95,7 +94,7 @@ const calcHotkeysValue: Mapper<any> = (tilePos, texts: Button[], filter:string[]
     return tile || NON_BREAKING.SPACE;
 };
 
-export default ({ 
+const Window = ({ 
     buttons, 
     fontSize, 
     selected,
@@ -199,7 +198,7 @@ export default ({
             {selected && 
                 <InputLayer
                     onKeyUp={handleKeyEvent}
-                    style={{ fontSize }}
+                    style={defaultStyle}
                     value={screen(value.size, calcInputValue)(pos)}
                     width={value.size.width}
                     height={value.size.height}
@@ -207,3 +206,5 @@ export default ({
         </Fragment>
     );
 };
+
+export default Window;
