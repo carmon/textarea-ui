@@ -36,21 +36,21 @@ const calcWindow: Mapper<WindowValue> = (tilePos, { size, texts }) => {
     if (tilePos.y === 0) {
         if (tilePos.x === 0)
             return THEME.DOUBLE_SINGLE.TOP_LEFT;
-        if (tilePos.x === w - 1)
+        if (tilePos.x === w)
             return THEME.DOUBLE_SINGLE.TOP_RIGHT;
-        if (tilePos.x > 0 && tilePos.x < w - 1)
+        if (tilePos.x > 0 && tilePos.x < w)
             return THEME.DOUBLE_SINGLE.HOR;
     }
 
     if (tilePos.y === h - 1) {
         if (tilePos.x === 0)
             return THEME.DOUBLE_SINGLE.BOTTOM_LEFT;
-        if (tilePos.x === w - 1)
+        if (tilePos.x === w)
             return THEME.DOUBLE_SINGLE.BOTTOM_RIGHT;
-        if (tilePos.x > 0 && tilePos.x < w - 1)
+        if (tilePos.x > 0 && tilePos.x < w)
             return THEME.DOUBLE_SINGLE.HOR;
     } 
-    if ((tilePos.x === 0 || tilePos.x === w - 1) && tilePos.y > 0 && tilePos.y < h)
+    if ((tilePos.x === 0 || tilePos.x === w) && tilePos.y > 0 && tilePos.y < h)
         return THEME.DOUBLE_SINGLE.VER;
 
     return NON_BREAKING.SPACE;

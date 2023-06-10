@@ -7,8 +7,8 @@ export const NON_BREAKING = {
 
 // Screen (core)
 export const screen = ({ width, height }: Size, func: Mapper<any>) => (...args:any[]) =>
-    new Array(height).fill(0).map((_, y) => 
-        new Array(width).fill(0).map((_,x) => 
+    new Array(height + 1).fill(0).map((_, y) => 
+        new Array(width + 1).fill(0).map((_,x) => 
             func({ x , y }, ...args)
         ).join('')
     ).join('');

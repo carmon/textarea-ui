@@ -6,7 +6,6 @@ import InputLayer from './layer/input';
 import WindowComponent from './components/window';
 
 const isChrome = navigator.userAgent.indexOf("Chrome") != -1;
-
 const fontSize = isChrome ? '21.8px' : '20px'; // Fixed size 
 
 import {
