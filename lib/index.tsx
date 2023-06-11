@@ -117,7 +117,7 @@ const App = ({
         return {
             begin: {
                 x: t.align === 'left' 
-                    ? m.x
+                    ? m.x + 1
                     : t.align === 'center' 
                         ? (b.right - b.left - t.value.length) / 2 
                         : b.right - b.left - m.x - t.value.length,
@@ -130,7 +130,6 @@ const App = ({
     const calcTextValue = (b: Box) => (value: Text | string): StringValue[] => {
         const t = typeof(value) === 'string' ? { ...TEXT, value } : value;
         const m = typeof(t.margin) === 'number' ? { x: t.margin, y: t.margin } : t.margin;
-        const len = t.value.length;
         const maxLineLen = b.right - b.left - m.x * 2 - 2;        
         const res = t.value
             .split('\n') // Look for manual wrapping
@@ -150,10 +149,10 @@ const App = ({
             return {
                 begin: {
                     x: t.align === 'left' 
-                        ? m.x 
+                        ? m.x + 1
                         : t.align === 'center' 
                             ? ((b.right - b.left) - text.length) / 2
-                            : b.right - b.left - m.x - len,
+                            : b.right - b.left - m.x - t.value.length,
                     y: i + m.y,
                 },
                 text: parseText(text).trim()
