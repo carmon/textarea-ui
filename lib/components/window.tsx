@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Fragment, useEffect, useState } from 'react';
 import { Button, Coord, Mapper, WindowValue } from '../types';
-import { /* checkButtonFocus , getButtonPos, parseButtonText,*/ NON_BREAKING, screen } from '../util';
+import { /* checkButtonFocus , getButtonPos, */ NON_BREAKING, screen } from '../util';
 
 import CommonLayer from '../layer/common';
 import InputLayer from '../layer/input';
@@ -140,8 +140,9 @@ const Window = ({
         }
     };
 
+    const hasButtons = buttons.length > 0;
     useEffect(() => {
-        if (!buttons.length) return;
+        if (!hasButtons) return;
         const btn = buttons[current];
         if (!btn) return;
         let hotkeyOffset = btn.text.indexOf(HOTKEYS[current]);
@@ -167,7 +168,7 @@ const Window = ({
                 width={value.size.width}
                 height={value.size.height}
             />
-            {buttons.length && 
+            {hasButtons && 
                 <CommonLayer
                     value={screen(value.size, calcButtonsValue)(buttons, true)}
                     style={{ 
@@ -178,7 +179,7 @@ const Window = ({
                     width={value.size.width}
                     height={value.size.height}
                 />}
-            {buttons.length && 
+            {hasButtons && 
                 <CommonLayer
                     value={screen(value.size, calcButtonsValue)(buttons, false)}
                     style={{ 
