@@ -12,7 +12,6 @@ import {
     TEXT, 
     THEME,
     // ACTION, PREV, NEXT,
-    DIR, LEFT, RIGHT, DOWN, UP
 } from './defaults/values';
 
 import { 
@@ -69,28 +68,27 @@ const App = ({
         e.preventDefault();
 
         const dir = { x: 0, y: 0 };
-        if (DIR.includes(e.keyCode)) {
-            const i = DIR.indexOf(e.keyCode);
-            const mod = (i % 2 ? i - 1 : i) / 2;
-            switch (mod) {
-                case LEFT:
+        if (e.key.includes('Arrow')) {
+            const key = e.key.replace('Arrow', '');
+            switch (key) {
+                case 'Left':
                     dir.x -= 1;
                     break;
-                case RIGHT:
+                case 'Right':
                     dir.x += 1;
                     break;
-                case UP:
+                case 'Up':
                     dir.y -= 1;
                     break;
-                case DOWN:
+                case 'Down':
                     dir.y += 1;
                     break;
             }
             const target = { x: pos.x + dir.x, y: pos.y + dir.y };
 
             if (target.x < 0)
-                target.x = size.width - 1;
-            else if (target.x === size.width)
+                target.x = size.width;
+            else if (target.x > size.width)
                 target.x = 0;
 
             if (target.y < 0)
