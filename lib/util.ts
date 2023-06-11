@@ -28,7 +28,7 @@ export const checkButtonFocus = (pos: Coord, button: Button) =>
 
 // Uses hotkey
 export const getButtonPos = (button: Button) => ({
-    x: button.begin.x,// + button.text.toLowerCase().indexOf(button.hotkey),
+    x: button.begin.x,// + button.text.toLowerCase().indexOf(button.hotkey), <= TODO: implement something like this
     y: button.begin.y
 });
 

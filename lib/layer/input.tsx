@@ -34,11 +34,12 @@ const InputLayer = ({
     };
 
     const handleMouseMove = (e: React.MouseEvent<HTMLTextAreaElement>) => {
-        const startX = style.left ? style.left.split('em')[0] : 0;
-        const startY = style.top ? style.top.split('em')[0] : 0;
-        console.log(startX, startY);
-        console.log(e.clientX, e.clientY);
-        console.log(e.clientX - startX, e.clientY - startY);
+        e;
+        // const startX = style.left ? style.left.split('em')[0] : 0;
+        // const startY = style.top ? style.top.split('em')[0] : 0;
+        // console.log(startX, startY);
+        // console.log(e.clientX, e.clientY);
+        // console.log(e.clientX - startX, e.clientY - startY);
     };
     
     const handleMouseLeave = () => {

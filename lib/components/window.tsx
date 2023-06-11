@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Fragment, useEffect, useState } from 'react';
 import { Button, Coord, Mapper, WindowValue } from '../types';
-import { /* checkButtonFocus , getButtonPos,*/ getButtonPos, NON_BREAKING, parseButtonText, screen } from '../util';
+import { /* checkButtonFocus , getButtonPos, parseButtonText,*/ NON_BREAKING, screen } from '../util';
 
 import CommonLayer from '../layer/common';
 import InputLayer from '../layer/input';
@@ -57,7 +57,7 @@ const calcWindow: Mapper<WindowValue> = (tilePos, { size, texts }) => {
 };
 
 const calcButtonsValue: Mapper<any> = (tilePos, texts: Button[], isBackground: boolean) => {
-    const t = texts.map(parseButtonText).filter(t => !!t).reduce((prev, curr) => {
+    const t = texts.filter(t => !!t).reduce((prev, curr) => {
         if (prev) return prev;
 
         if (tilePos.y === curr.begin.y) {
@@ -108,6 +108,7 @@ const Window = ({
         const key = curr.text
             .toLowerCase()
             .split('')
+            .filter(s => !!s.trim() && s !== '[' && s !== ']')
             .reduce(
                 (p, c) => {
                     if (p) return p;
@@ -141,8 +142,11 @@ const Window = ({
 
     useEffect(() => {
         if (!buttons.length) return;
-        const btnPos = getButtonPos(buttons[current]);
-        setPos(value.pos.x + btnPos.x, value.pos.y + btnPos.y);
+        const btn = buttons[current];
+        if (!btn) return;
+        let hotkeyOffset = btn.text.indexOf(HOTKEYS[current]);
+        if (hotkeyOffset === -1) hotkeyOffset = btn.text.indexOf(HOTKEYS[current].toUpperCase());
+        setPos(btn.begin.x + hotkeyOffset, value.pos.y + btn.begin.y - 2); // TODO: check this hardcoded value
     }, [current]);
 
     const defaultStyle = {
@@ -186,7 +190,7 @@ const Window = ({
                     height={value.size.height}
                 />}
             <CommonLayer
-                value={screen(value.size, calcHotkeysValue)(buttons.map(parseButtonText), HOTKEYS)} 
+                value={screen(value.size, calcHotkeysValue)(buttons, HOTKEYS)} 
                 style={{ 
                     backgroundColor: 'transparent',
                     color: value.color.hotkeys,

@@ -28,6 +28,7 @@ import {
 import { 
     // checkButtonFocus, 
     getButtonPos,
+    parseButtonText,
     parseText,
     screen, 
     NON_BREAKING 
@@ -49,7 +50,7 @@ const getInitialPos = (w: Window) => {
     const btnPos = getButtonPos(w.buttons[0]);
     return {
         x: w.bounds.left + btnPos.x,
-        y: w.bounds.top + btnPos.y,
+        y: w.bounds.top + btnPos.y - 2,
     }
 };
 
@@ -68,7 +69,6 @@ const App = ({
         e.preventDefault();
 
         const dir = { x: 0, y: 0 };
-        console.log(e.key, e.keyCode);
         if (DIR.includes(e.keyCode)) {
             const i = DIR.indexOf(e.keyCode);
             const mod = (i % 2 ? i - 1 : i) / 2;
@@ -199,7 +199,7 @@ const App = ({
             {parsedWindows.map((w, it) => 
                 <WindowComponent 
                     key={it} 
-                    buttons={windows[it].buttons || []}
+                    buttons={windows[it].buttons?.map(parseButtonText) || []}
                     fontSize={fontSize}
                     selected={selected === it}
                     pos={pos}
