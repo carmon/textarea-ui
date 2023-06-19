@@ -14,6 +14,7 @@ interface Props {
     selected: boolean;
     pos: { x: number, y: number };
     setPos: (x: number, y: number) => void;
+    width: number;
 }
 
 const calcWindow: Mapper<WindowValue> = (tilePos, { size, texts }) => {
@@ -100,7 +101,8 @@ const Window = ({
     selected,
     value,
     pos, 
-    setPos
+    setPos,
+    width
 }: Props) => {
     const [current, setCurrent] = useState(0);
 
@@ -165,7 +167,7 @@ const Window = ({
                     color: value.color.foreground.characters,
                     ...defaultStyle
                 }}
-                width={value.size.width}
+                width={width}
                 height={value.size.height}
             />
             {hasButtons && 
@@ -176,7 +178,7 @@ const Window = ({
                         color: value.color.buttons.background,
                         ...defaultStyle
                     }}
-                    width={value.size.width}
+                    width={width}
                     height={value.size.height}
                 />}
             {hasButtons && 
@@ -187,7 +189,7 @@ const Window = ({
                         color: value.color.buttons.characters,
                         ...defaultStyle
                     }}
-                    width={value.size.width}
+                    width={width}
                     height={value.size.height}
                 />}
             <CommonLayer
@@ -197,7 +199,7 @@ const Window = ({
                     color: value.color.hotkeys,
                     ...defaultStyle
                 }}
-                width={value.size.width}
+                width={width}
                 height={value.size.height}
             />
             {selected && 
@@ -205,7 +207,7 @@ const Window = ({
                     onKeyUp={handleKeyEvent}
                     style={defaultStyle}
                     value={screen(value.size, calcInputValue)(pos)}
-                    width={value.size.width}
+                    width={width}
                     height={value.size.height}
                 />}
         </Fragment>

@@ -6,6 +6,7 @@ import InputLayer from './layer/input';
 import WindowComponent from './components/window';
 
 const isFFX = navigator.userAgent.indexOf("Firefox") != -1;
+const widthOffset = isFFX ? 1 : 0;
 const fontSize = '20px';
 
 import {
@@ -137,7 +138,7 @@ const App = ({
                 (prev: string[], curr) => {
                     if (curr.length > maxLineLen) {
                         const m = Math.ceil(curr.length / maxLineLen);
-                        const lines = new Array(m).fill('').map((_, i) => t.value.substr(i * maxLineLen, maxLineLen));
+                        const lines = new Array(m).fill('').map((_, i) => t.value.substring(i * maxLineLen, i * maxLineLen + maxLineLen));
                         return [...prev, ...lines];
                     }
                     return [...prev, curr];
@@ -160,6 +161,7 @@ const App = ({
         });
     };
     
+    console.log(widthOffset);
     const parsedWindows: WindowValue[] = windows.map(w => ({
         color: getWindowColor(w.color),
         pos: {
@@ -180,8 +182,7 @@ const App = ({
     const calcInputValue = screen(size, (tilePos, p) => 
         tilePos.x === p.x && tilePos.y === p.y ? THEME.USER : NON_BREAKING.SPACE);
 
-    let { width, height } = size;
-    if (isFFX) width -= 1; 
+    const { width, height } = size;
     return (
         <Fragment>
             <CommonLayer
@@ -191,7 +192,7 @@ const App = ({
                     color: c.characters, 
                     fontSize 
                 }}
-                width={width}
+                width={width + widthOffset}
                 height={height}
             />
             {parsedWindows.map((w, it) => 
@@ -203,6 +204,7 @@ const App = ({
                     pos={pos}
                     setPos={(x, y) => setPos({x, y})}
                     value={w}
+                    width={w.size.width + widthOffset}
                 />)}
             {highlight && 
                 <CommonLayer
@@ -212,7 +214,7 @@ const App = ({
                         backgroundColor: 'transparent', 
                         fontSize 
                     }}
-                    width={width}
+                    width={width + widthOffset}
                     height={height}
                 />}
             {selected < 0 && 
@@ -220,7 +222,7 @@ const App = ({
                     onKeyUp={handleKeyEvent}
                     style={{ fontSize }}
                     value={calcInputValue(pos)}
-                    width={width}
+                    width={width + widthOffset}
                     height={height}
                 />}
         </Fragment>
