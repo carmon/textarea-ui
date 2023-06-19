@@ -9,7 +9,7 @@ import { ACTION, NEXT, PREV, THEME } from '../defaults/values';
 
 interface Props {
     buttons: Button[];
-    fontSize: string;
+    fontSize?: string;
     value: WindowValue;
     selected: boolean;
     pos: { x: number, y: number };

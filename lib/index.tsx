@@ -5,8 +5,8 @@ import CommonLayer from './layer/common';
 import InputLayer from './layer/input';
 import WindowComponent from './components/window';
 
-const isChrome = navigator.userAgent.indexOf("Chrome") != -1;
-const fontSize = isChrome ? '21.8px' : '20px'; // Fixed size 
+const isFFX = navigator.userAgent.indexOf("Firefox") != -1;
+const fontSize = '20px';
 
 import {
     TEXT, 
@@ -180,7 +180,8 @@ const App = ({
     const calcInputValue = screen(size, (tilePos, p) => 
         tilePos.x === p.x && tilePos.y === p.y ? THEME.USER : NON_BREAKING.SPACE);
 
-    const { width, height } = size;
+    let { width, height } = size;
+    if (isFFX) width -= 1; 
     return (
         <Fragment>
             <CommonLayer
