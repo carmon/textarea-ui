@@ -24,27 +24,22 @@ export default () => {
                 buttons: [
                     {
                         action: getOpenLinkAction('https://github.com/carmon'),
-                        begin: { x: 35, y: 6 },
+                        begin: { x: 35, y: 7 },
                         text: 'Github'  
                     },
                     {
                         action: getOpenLinkAction('https://www.linkedin.com/in/carmon/'),
-                        begin: { x: 34, y: 8 },
+                        begin: { x: 34, y: 9 },
                         text: 'LinkedIn'  
                     },
                     {
-                        action: getOpenLinkAction('https://stackoverflow.com/users/story/3241152'),
-                        begin: { x: 31, y: 10 },
-                        text: 'stack overflow'  
-                    },
-                    {
                         action: getOpenLinkAction('https://til.vercel.app/'),
-                        begin: { x: 29, y: 12 },
+                        begin: { x: 29, y: 11 },
                         text: 'TIL: personal blog'  
                     },
                     {
                         action: getOpenLinkAction('https://www.twitch.tv/carmontv'),
-                        begin: { x: 35, y: 14 },
+                        begin: { x: 35, y: 13 },
                         text: 'twitch'  
                     }
                 ],
