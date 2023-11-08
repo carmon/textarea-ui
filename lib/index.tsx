@@ -5,8 +5,9 @@ import CommonLayer from './layer/common';
 import InputLayer from './layer/input';
 import WindowComponent from './components/window';
 
-const isFFX = navigator.userAgent.indexOf("Firefox") != -1;
-const widthOffset = isFFX ? 1 : 0;
+// const isFFX = navigator.userAgent.indexOf("Firefox") != -1;
+// const widthOffset = isFFX ? 1 : 0;
+const widthOffset = 1;
 const fontSize = '20px';
 
 import {
