@@ -38,9 +38,9 @@ export default () => {
                         text: 'TIL: personal blog'  
                     },
                     {
-                        action: getOpenLinkAction('https://www.twitch.tv/carmontv'),
-                        begin: { x: 35, y: 13 },
-                        text: 'twitch'  
+                        action: getOpenLinkAction('https://jmod.vercel.app/'),
+                        begin: { x: 25, y: 13 },
+                        text: 'JMOD: an online JSON editor'  
                     }
                 ],
                 color: {
