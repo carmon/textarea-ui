@@ -1,4 +1,4 @@
-import { ScreenColor, WindowColor, WindowColorValue } from "../types";
+import { Coord, StylePos, ScreenColor, WindowColor, WindowColorValue } from "../types";
 import { COLOR_SCREEN, COLOR_WINDOW } from "./values";
 
 export const getScreenColor = (src?: Partial<ScreenColor>): ScreenColor => ({
@@ -17,4 +17,22 @@ export const getWindowColor = (src?: Partial<WindowColor>): WindowColorValue => 
       characters: src && src.buttons && src.buttons.characters || COLOR_WINDOW.buttons.characters
   },
   hotkeys: src && src.hotkeys || COLOR_WINDOW.hotkeys
+});
+
+const yOffset = 1.15;
+const xOffset = .6125;
+
+export const coordToStylePos = (coord: Coord): StylePos => ({
+  top: `${coord.y * yOffset}em`,
+  left: `${coord.x * xOffset}em`,
+});
+
+export const stylePosToCoord = (pos: StylePos): Coord => ({
+  x: pos.left ? Number(pos.left.split('em')[0]) / xOffset : 0,
+  y: pos.top ? Number(pos.top.split('em')[0]) / yOffset : 0,
+});
+
+export const pixelToCoord = (coord: Coord): Coord => ({
+    x: coord.x / 20 / xOffset,
+    y: coord.y / 20 / yOffset,
 });

@@ -94,3 +94,10 @@ export interface Size {
     width: number;
     height: number;
 }
+
+// Style
+
+export interface StylePos {
+    top: string;
+    left: string;
+}

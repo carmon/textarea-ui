@@ -2,6 +2,7 @@ import * as React from "react";
 import { useRef, useState } from "react";
 
 import useInterval from '../helpers/use-interval';
+import { pixelToCoord, stylePosToCoord } from '../defaults/utils';
 import { InputProps } from './types';
 
 import './style.css';
@@ -9,6 +10,7 @@ import './style.css';
 const InputLayer = ({ 
     onKeyDown,
     onKeyUp,
+    onMouseUp,
     style = {},
     value, 
     width, 
@@ -41,6 +43,12 @@ const InputLayer = ({
         // console.log(e.clientX, e.clientY);
         // console.log(e.clientX - startX, e.clientY - startY);
     };
+
+    const handleMouseUp = (e: React.MouseEvent<HTMLTextAreaElement>) => {
+        const windowCoord = stylePosToCoord({ left: style.left, top: style.top });
+        const mouseCoord = pixelToCoord({ x: e.clientX, y: e.clientY });
+        onMouseUp?.({ x: mouseCoord.x - windowCoord.x, y: mouseCoord.y - windowCoord.y });
+    };
     
     const handleMouseLeave = () => {
         setHover(false);
@@ -58,6 +66,7 @@ const InputLayer = ({
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             onMouseMoveCapture={handleMouseMove}
+            onMouseUp={handleMouseUp}
             onKeyDown={onKeyDown}
             onKeyUp={onKeyUp}
             ref={inputRef}            

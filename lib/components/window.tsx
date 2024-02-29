@@ -6,6 +6,7 @@ import { /* checkButtonFocus , getButtonPos, */ NON_BREAKING, screen } from '../
 import CommonLayer from '../layer/common';
 import InputLayer from '../layer/input';
 import { ACTION, NEXT, PREV, THEME } from '../defaults/values';
+import { coordToStylePos } from '../defaults/utils';
 
 interface Props {
     buttons: Button[];
@@ -142,6 +143,19 @@ const Window = ({
         }
     };
 
+    const handleMouseClick = (c: Coord) => {
+        // TODO: click should work not just in buttons
+        if (!hasButtons) return;
+        const yCoord = Math.floor(c.y);
+        const posibleBtn = buttons.find(b => b.begin.y === yCoord);
+        if (posibleBtn) {
+            const buttonLength = posibleBtn.text.length + 4;
+            if (c.x >= posibleBtn.begin.x && c.x <= posibleBtn.begin.x + buttonLength) {
+                posibleBtn.action();
+            }
+        }
+    };
+
     const hasButtons = buttons.length > 0;
     useEffect(() => {
         if (!hasButtons) return;
@@ -154,8 +168,7 @@ const Window = ({
 
     const defaultStyle = {
         fontSize,
-        top: `${value.pos.y * 1.15}em`,
-        left: `${value.pos.x * .6125}em`,
+        ...coordToStylePos(value.pos),
     };
 
     return (
@@ -205,6 +218,7 @@ const Window = ({
             {selected && 
                 <InputLayer
                     onKeyUp={handleKeyEvent}
+                    onMouseUp={handleMouseClick}
                     style={defaultStyle}
                     value={screen(value.size, calcInputValue)(pos)}
                     width={width}
