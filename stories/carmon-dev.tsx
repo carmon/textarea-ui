@@ -55,8 +55,8 @@ export default () => {
                     hotkeys: '#ffd166'
                 },
                 texts: [ 
-                    getTextValue('center', { x: 0, y: 3 }, "This site is currently under construction, \n you can visit this links meanwhile:"),
-                    getTextValue('center', { x: 0, y: 16 }, "[← → ↑ ↓] to move, [↵] to activate button, \n highlighted characters are shortcuts.")
+                    getTextValue('center', { x: 0, y: 3 }, "Hello, I'm Emiliano, a programmer from Argentina \n and this is my personal portfolio:"),
+                    getTextValue('center', { x: 0, y: 16 }, "[Click] or [← → ↑ ↓] to move and [↵] to activate button, \n highlighted characters are shortcuts.")
                 ],
                 title: getTextValue('center', { x: 0 }, "[Carmon's personal website]")
             }

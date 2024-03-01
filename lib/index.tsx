@@ -161,8 +161,7 @@ const App = ({
             };
         });
     };
-    
-    console.log(widthOffset);
+
     const parsedWindows: WindowValue[] = windows.map(w => ({
         color: getWindowColor(w.color),
         pos: {

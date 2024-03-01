@@ -35,7 +35,7 @@ const Welcome = () => {
                 },
                 buttons: [
                     {
-                        action: () => window.open('https://github.com/carmon'),
+                        action: () => window.open('https://github.com/carmon/textarea-ui'),
                         begin: { x: 20, y: 11 },
                         text: 'Go to github repo'  
                     }

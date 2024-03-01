@@ -163,7 +163,7 @@ const Window = ({
         if (!btn) return;
         let hotkeyOffset = btn.text.indexOf(HOTKEYS[current]);
         if (hotkeyOffset === -1) hotkeyOffset = btn.text.indexOf(HOTKEYS[current].toUpperCase());
-        setPos(btn.begin.x + hotkeyOffset, value.pos.y + btn.begin.y - 2); // TODO: check this hardcoded value
+        setPos(btn.begin.x + hotkeyOffset, btn.begin.y); 
     }, [current]);
 
     const defaultStyle = {
@@ -222,7 +222,7 @@ const Window = ({
                     style={defaultStyle}
                     value={screen(value.size, calcInputValue)(pos)}
                     width={width}
-                    height={value.size.height}
+                    height={value.size.height + 1} // TODO: check this hardcoded value
                 />}
         </Fragment>
     );
