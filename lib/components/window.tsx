@@ -146,12 +146,13 @@ const Window = ({
 
     const handleMouseMove = (c: Coord) => {
         if (!hasButtons) return;
-        const yCoord = Math.floor(c.y);
+        const yCoord = Math.floor(c.y - .3);
         const posibleBtn = buttons.find(b => b.begin.y === yCoord);
         if (posibleBtn) {
-            const buttonLength = posibleBtn.text.length;
-            if (c.x >= posibleBtn.begin.x && c.x <= posibleBtn.begin.x + buttonLength) {
+            if (c.x >= posibleBtn.begin.x && c.x <= posibleBtn.begin.x + posibleBtn.text.length - .3) {
                 setCursor('pointer');
+            } else {
+                setCursor('default');
             }
         } else {
             setCursor('default');
