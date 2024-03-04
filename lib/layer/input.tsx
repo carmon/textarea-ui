@@ -10,6 +10,7 @@ import './style.css';
 const InputLayer = ({ 
     onKeyDown,
     onKeyUp,
+    onMouseMove,
     onMouseUp,
     style = {},
     value, 
@@ -29,19 +30,15 @@ const InputLayer = ({
         setColor(() => color === 'white' ? 'black' : 'white');
     }, 450)
 
-    const [hover, setHover] = useState(false);
-
-    const handleMouseEnter = () => {
-        setHover(true);
-    };
+    // const [hover, setHover] = useState(false);
+    // const handleMouseEnter = () => {
+    //     setHover(true);
+    // };
 
     const handleMouseMove = (e: React.MouseEvent<HTMLTextAreaElement>) => {
-        e;
-        // const startX = style.left ? style.left.split('em')[0] : 0;
-        // const startY = style.top ? style.top.split('em')[0] : 0;
-        // console.log(startX, startY);
-        // console.log(e.clientX, e.clientY);
-        // console.log(e.clientX - startX, e.clientY - startY);
+        const windowCoord = stylePosToCoord({ left: style.left, top: style.top });
+        const mouseCoord = pixelToCoord({ x: e.clientX, y: e.clientY });
+        onMouseMove?.({ x: mouseCoord.x - windowCoord.x, y: mouseCoord.y - windowCoord.y });
     };
 
     const handleMouseUp = (e: React.MouseEvent<HTMLTextAreaElement>) => {
@@ -50,9 +47,9 @@ const InputLayer = ({
         onMouseUp?.({ x: mouseCoord.x - windowCoord.x, y: mouseCoord.y - windowCoord.y });
     };
     
-    const handleMouseLeave = () => {
-        setHover(false);
-    };
+    // const handleMouseLeave = () => {
+    //     setHover(false);
+    // };
 
     return (
         <textarea 
@@ -61,10 +58,10 @@ const InputLayer = ({
             cols={width} 
             rows={height}
             value={value} 
-            style={{ ...style, color, backgroundColor: 'transparent', cursor: hover ? 'crosshair' : 'default' }}
+            style={{ ...style, color, backgroundColor: 'transparent' }}
             onBlur={handleBlur}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
+            // onMouseEnter={handleMouseEnter}
+            // onMouseLeave={handleMouseLeave}
             onMouseMoveCapture={handleMouseMove}
             onMouseUp={handleMouseUp}
             onKeyDown={onKeyDown}

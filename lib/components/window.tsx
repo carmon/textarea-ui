@@ -106,6 +106,7 @@ const Window = ({
     width
 }: Props) => {
     const [current, setCurrent] = useState(0);
+    const [cursor, setCursor] = useState('default');
 
     const HOTKEYS = buttons.reduce((prev: string[], curr: Button) => {
         const key = curr.text
@@ -143,13 +144,27 @@ const Window = ({
         }
     };
 
+    const handleMouseMove = (c: Coord) => {
+        if (!hasButtons) return;
+        const yCoord = Math.floor(c.y);
+        const posibleBtn = buttons.find(b => b.begin.y === yCoord);
+        if (posibleBtn) {
+            const buttonLength = posibleBtn.text.length;
+            if (c.x >= posibleBtn.begin.x && c.x <= posibleBtn.begin.x + buttonLength) {
+                setCursor('pointer');
+            }
+        } else {
+            setCursor('default');
+        }
+    };
+
     const handleMouseClick = (c: Coord) => {
         // TODO: click should work not just in buttons
         if (!hasButtons) return;
         const yCoord = Math.floor(c.y);
         const posibleBtn = buttons.find(b => b.begin.y === yCoord);
         if (posibleBtn) {
-            const buttonLength = posibleBtn.text.length + 4;
+            const buttonLength = posibleBtn.text.length;
             if (c.x >= posibleBtn.begin.x && c.x <= posibleBtn.begin.x + buttonLength) {
                 posibleBtn.action();
             }
@@ -167,6 +182,7 @@ const Window = ({
     }, [current]);
 
     const defaultStyle = {
+        cursor,
         fontSize,
         ...coordToStylePos(value.pos),
     };
@@ -219,6 +235,7 @@ const Window = ({
                 <InputLayer
                     onKeyUp={handleKeyEvent}
                     onMouseUp={handleMouseClick}
+                    onMouseMove={handleMouseMove}
                     style={defaultStyle}
                     value={screen(value.size, calcInputValue)(pos)}
                     width={width}
