@@ -1,7 +1,7 @@
 {
   "name": "textarea-ui",
-  "version": "1.0.0",
-  "description": "Boilerplate for react app.",
+  "version": "0.0.1",
+  "description": "React component for using retro text UIs on the browser.",
   "dependencies": {
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
@@ -37,9 +37,11 @@
   "scripts": {
     "build": "webpack",
     "build:prod": "webpack --env.NODE_ENV=production",
+    "build:samples": "webpack --env.NODE_ENV=samples",
     "start": "npm run build && webpack-dev-server --open",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "webpack --watch"
+    "watch": "webpack --watch",
+    "pub": "npm run build:prod && cp package*.json dist && npm publish --dry-run ./dist"
   },
   "browserslist": [
     ">0.2%",
@@ -52,5 +54,5 @@
     "webpack"
   ],
   "license": "ISC",
-  "author": "Carmon"
+  "author": "Emiliano Carmona"
 }

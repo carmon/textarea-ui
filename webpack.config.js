@@ -4,10 +4,11 @@ const webpack = require('webpack');
 
 module.exports = env => {
   const mode = env && env.NODE_ENV || 'development';
-  const distFolder = mode === 'production' ? 'public/dist' : 'dist';
+  const isSamplesBuild = mode === 'samples';
+  const distFolder = isSamplesBuild ? 'public/dist' : 'dist';
 
   return ({
-    entry: './index.js',
+    entry: isSamplesBuild ? './index.js' : './lib/index.tsx',
     devServer: {
       contentBase: path.join(__dirname, 'public'),
       hot: true,
