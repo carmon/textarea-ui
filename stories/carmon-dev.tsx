@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import Screen from "../lib/index";
+import Screen from "../lib/Screen";
 import { getTextValue } from './util/get-values';
 
 const getOpenLinkAction = (link: string) => () => window.open(link);

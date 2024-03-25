@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import UI from "../lib/index.tsx";
+import UI from "../lib/Screen.tsx";
 
 // Flagged for migration to TS story
 // Will resume example when text wrapping feature is done 

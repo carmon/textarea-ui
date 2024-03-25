@@ -2,7 +2,7 @@ import * as React from 'react';
 // import { useState } from 'react';
 
 // import useInterval from '../lib/helpers/use-interval';
-import Screen from "../lib/index";
+import Screen from "../lib/Screen";
 import { getTextValue } from './util/get-values';
 
 const Welcome = () => {

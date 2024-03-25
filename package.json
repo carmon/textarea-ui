@@ -1,5 +1,5 @@
 {
-  "name": "textarea-ui",
+  "name": "@carmon/textarea-ui",
   "version": "0.0.1",
   "description": "React component for using retro text UIs on the browser.",
   "dependencies": {
@@ -30,18 +30,22 @@
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.0"
   },
+  "private": false,
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/carmon"
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/carmon/textarea-ui.git"
   },
   "scripts": {
     "build": "webpack",
+    "build:dev": "webpack --env.NODE_ENV=development",
     "build:prod": "webpack --env.NODE_ENV=production",
-    "build:samples": "webpack --env.NODE_ENV=samples",
     "start": "npm run build && webpack-dev-server --open",
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "webpack --watch",
-    "pub": "npm run build:prod && cp package*.json dist && npm publish --dry-run ./dist"
+    "pub": "npm run build:dev && cp package*.json dist && npm publish ./dist"
   },
   "browserslist": [
     ">0.2%",
