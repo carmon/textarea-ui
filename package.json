@@ -1,6 +1,6 @@
 {
   "name": "@carmon/textarea-ui",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "React component for using retro text UIs on the browser.",
   "dependencies": {
     "react": "^16.13.1",
